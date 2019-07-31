@@ -39,7 +39,7 @@
             "value": "not-a-real-key"
         },
         "templateBaseUrl": {
-            "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-employmentprogression/SDD-96-AddAzDevOpsPipeline-v3/Resources/"
+            "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-employmentprogression/master-v3/Resources/"
         }
     }
 }
