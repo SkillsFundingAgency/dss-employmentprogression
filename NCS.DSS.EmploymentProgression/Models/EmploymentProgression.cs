@@ -21,6 +21,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         public Guid? CustomerId { get; set; }
 
         [Example(Description = "2018-06-21T17:45:00")]
+        [Display(Description = "Date and time employment progression was created.")]
         [Required]
         public DateTime? DateProgressionRecorded { get; set; }
 
@@ -87,10 +88,12 @@ namespace NCS.DSS.EmploymentProgression.Models
         public EmploymentHours? EmploymentHours { get; set; }
 
         [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time of employment.")]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateOfEmployment { get; set; }
 
         [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time of last employment.")]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateOfLastEmployment { get; set; }
 
@@ -106,6 +109,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         public LengthOfUnemployment? LengthOfUnemployment { get; set; }
 
         [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time last modified.")]
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? LastModifiedDate { get; set; }
 
