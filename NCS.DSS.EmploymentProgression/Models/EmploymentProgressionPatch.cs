@@ -25,26 +25,11 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Display(Description = "Date and time employment progression was created.")]
         public DateTime? DateProgressionRecorded { get; set; }
 
-        [Display(Description = "Employment Status: " +
-                                "1 - Apprenticeship     " +
-                                "2 - Economically Inactive" +
-                                "3 - Economically Inactive and voluntary work" +
-                                "4 - Employed" +
-                                "5 - Employed and voluntary work" +
-                                "6 - Employed at risk of redundancy" +
-                                "7 - Retired" +
-                                "8 - Retired and voluntary work" +
-                                "9 - Self employed" +
-                                "10 - Self employed and voluntary work" +
-                                "11 - Unemployed" +
-                                "12 - Unemployed and voluntary work" +
-                                "99 - Not known")]
+        [Display(Description = "Employment status.")]
         [Example(Description = "3")]
         public CurrentEmploymentStatus? CurrentEmploymentStatus { get; set; }
 
-        [Display(Description = "1 - Local economic shock        " +
-                       "2 - Government defined economic shock        " +
-                       "3 - Not applicable")]
+        [Display(Description = "Economic shock status")]
         [Example(Description = "2")]
         [Required]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
@@ -77,11 +62,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         [JsonIgnoreOnSerialize]
         public double? Longitude { get; set; }
 
-        [Display(Description = "Employment Hours:   " +
-                        "1 - Less than 16 hours,  " +
-                        "2 - 16 hours or more,  " +
-                        "98 - Prefer not to say,  " +
-                        "99 - Not known")]
+        [Display(Description = "Employment hours.")]
         [Example(Description = "2")]
         public EmploymentHours? EmploymentHours { get; set; }
 
@@ -95,14 +76,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Example(Description = "2018-06-21T17:45:00")]
         public DateTime? DateOfLastEmployment { get; set; }
 
-        [Display(Description = "1 - Less than 3 months     " +
-                               "2 - 3-5 months     " +
-                               "3 - 6-11 months     " +
-                               "4 - 12-23 months     " +
-                               "5 - 24-35 months     " +
-                               "6 - over 36 months     " +
-                               "98 - Prefer not to say     " +
-                               "99 - Not known/not provided")]
+        [Display(Description = "Length of unemployment.")]
         [Example(Description = "2")]
         public LengthOfUnemployment? LengthOfUnemployment { get; set; }
 
