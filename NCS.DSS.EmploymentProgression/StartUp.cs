@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using DFC.Swagger.Standard;
 using NCS.DSS.EmploymentProgression;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -16,7 +15,10 @@ namespace NCS.DSS.EmploymentProgression
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+            services.AddTriggerSettings();
+            services.AddTriggerHelpers();
+            services.AddTriggerSupport();
+            services.AddTriggerServices();
         }
     }
 }

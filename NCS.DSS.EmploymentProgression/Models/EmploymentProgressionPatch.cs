@@ -14,7 +14,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
         [JsonProperty(PropertyName = "id")]
         [Required]
-        public Guid? EmploymentProgressionID { get; set; }
+        public Guid? EmploymentProgressionId { get; set; }
 
         [Display(Description = "Unique identifier of a customer")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
@@ -31,7 +31,6 @@ namespace NCS.DSS.EmploymentProgression.Models
 
         [Display(Description = "Economic shock status")]
         [Example(Description = "2")]
-        [Required]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
         [Display(Description = "Economic Shock Code")]
         [Example(Description = "Thousands of employee made redundant at local car plant.")]

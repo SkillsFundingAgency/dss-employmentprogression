@@ -5,7 +5,7 @@ namespace NCS.DSS.EmploymentProgression.Models
 {
     public interface IEmploymentProgression
     {
-        Guid? EmploymentProgressionID { get; set; }
+        Guid? EmploymentProgressionId { get; set; }
         Guid? CustomerId { get; set; }
         DateTime? DateProgressionRecorded { get; set; }
         CurrentEmploymentStatus? CurrentEmploymentStatus { get; set; }

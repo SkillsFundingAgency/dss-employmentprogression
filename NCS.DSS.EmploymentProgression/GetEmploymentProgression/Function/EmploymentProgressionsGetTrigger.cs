@@ -7,32 +7,31 @@ using System.Net.Http;
 using System.Net;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
-using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
+using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
 using DFC.Common.Standard.Logging;
+using System;
 
 namespace NCS.DSS.EmploymentProgression
 {
-    public class EmploymentProgressionGetByIdTrigger
+    public class EmploymentProgressionsGetTrigger
     {
-        const string RouteValue = "customers/{customerId}/employmentprogessions/{EmploymentProgressionId}";
-        const string FunctionName = "getById";
-
+        const string RouteValue = "customers/{customerId}/EmploymentProgessions";
+        const string FunctionName = "get";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
-        private readonly IEmploymentProgressionGetByIdService _EmploymentProgressionByIdService;
+        private readonly IEmploymentProgressionsGetTriggerService _EmploymentProgressionsGetTriggerService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILoggerHelper _loggerHelper;
 
-        public EmploymentProgressionGetByIdTrigger(
+        public EmploymentProgressionsGetTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
-            IEmploymentProgressionGetByIdService EmploymentProgressionByIdService,
+            IEmploymentProgressionsGetTriggerService EmploymentProgressionsGetTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             ILoggerHelper loggerHelper
@@ -40,7 +39,7 @@ namespace NCS.DSS.EmploymentProgression
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
-            _EmploymentProgressionByIdService = EmploymentProgressionByIdService;
+            _EmploymentProgressionsGetTriggerService = EmploymentProgressionsGetTriggerService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _loggerHelper = loggerHelper;
@@ -55,10 +54,10 @@ namespace NCS.DSS.EmploymentProgression
         [Response(HttpStatusCode = (int)422, Description = "Employment progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.EmploymentProgression), (int)HttpStatusCode.OK)]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
-            HttpRequest req, ILogger logger, string customerId, string EmploymentProgressionId)
+            HttpRequest req, ILogger logger, string customerId)
         {
             _loggerHelper.LogMethodEnter(logger);
-
+     
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
             var guidHelper = new GuidHelper();
@@ -90,19 +89,13 @@ namespace NCS.DSS.EmploymentProgression
                 return _httpResponseMessageHelper.BadRequest();
             }
 
-            if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
-            {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'employmentProgressioniD' to a Guid: {EmploymentProgressionId}");
-                return _httpResponseMessageHelper.BadRequest(employmentProgressionGuid);
-            }
-
-            var employmentProgression = await _EmploymentProgressionByIdService.GetEmploymentProgressionForCustomerAsync(customerGuid, employmentProgressionGuid);
+            var employmentProgression = await _EmploymentProgressionsGetTriggerService.GetEmploymentProgressionsForCustomerAsync(customerGuid);
 
             _loggerHelper.LogMethodExit(logger);
 
             return employmentProgression == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(employmentProgression, "id", "EmploymentProgressionId"));
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectsAndRenameIdProperty(employmentProgression, "id", "EmploymentProgressionId"));
         }
     }
 }
