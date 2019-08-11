@@ -17,21 +17,21 @@ using System;
 
 namespace NCS.DSS.EmploymentProgression
 {
-    public class EmploymentProgressionsGetTrigger
+    public class EmploymentProgressionGetTrigger
     {
         const string RouteValue = "customers/{customerId}/EmploymentProgessions";
         const string FunctionName = "get";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
-        private readonly IEmploymentProgressionsGetTriggerService _EmploymentProgressionsGetTriggerService;
+        private readonly IEmploymentProgressionGetTriggerService _EmploymentProgressionsGetTriggerService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILoggerHelper _loggerHelper;
 
-        public EmploymentProgressionsGetTrigger(
+        public EmploymentProgressionGetTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
-            IEmploymentProgressionsGetTriggerService EmploymentProgressionsGetTriggerService,
+            IEmploymentProgressionGetTriggerService EmploymentProgressionsGetTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             ILoggerHelper loggerHelper
@@ -86,7 +86,7 @@ namespace NCS.DSS.EmploymentProgression
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, "Bad request");
-                return _httpResponseMessageHelper.BadRequest();
+                return _httpResponseMessageHelper.NoContent();
             }
 
             var employmentProgression = await _EmploymentProgressionsGetTriggerService.GetEmploymentProgressionsForCustomerAsync(customerGuid);

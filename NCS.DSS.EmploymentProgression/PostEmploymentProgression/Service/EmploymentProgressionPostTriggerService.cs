@@ -1,4 +1,5 @@
-﻿using NCS.DSS.EmploymentProgression.Cosmos.Provider;
+﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.ServiceBus;
 using System;
 using System.Net;
@@ -16,6 +17,7 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
         }
+
         public async Task<Models.EmploymentProgression> CreateEmploymentProgressionAsync(Models.EmploymentProgression employmentProgression)
         {
             if (employmentProgression == null)
@@ -51,6 +53,17 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             employmentProgression.CustomerId = customerGuid;
             employmentProgression.LastModifiedTouchpointID = touchpointId;
             employmentProgression.CreatedBy = touchpointId;
+        }
+
+        public void SetLongitudeAndLatitude(Models.EmploymentProgression employmentProgressionRequest, Position position)
+        {
+            if (position == null || employmentProgressionRequest == null)
+            {
+                return;
+            }
+
+            employmentProgressionRequest.Longitude = position.Lon;
+            employmentProgressionRequest.Latitude = position.Lat;
         }
     }
 }

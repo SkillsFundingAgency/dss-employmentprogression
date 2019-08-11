@@ -1,445 +1,244 @@
 ﻿using System.Threading.Tasks;
 using Xunit;
 using System.Net;
-using NSubstitute;
-using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
-using NCS.DSS.Contact.Cosmos.Helper;
-using DFC.Common.Standard.Logging;
-using Microsoft.AspNetCore.Http;
-using NCS.DSS.EmploymentProgression.Validators;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
-using NCS.DSS.EmploymentProgression.Function;
 using NCS.DSS.EmploymentProgression.Models;
+using NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 {
     public class EmploymentProgressionPatchTriggerTests
     {
-        const string CustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
-        const string InvalidCustomerId = "InvalidCustomerId";
-        const string EmploymentProgressionId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
-        const string InvalidEmploymentProgressionId = "InvalidEmploymentProgressionId";
+        private const string ValidCustomerId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
+        private const string ValidEmploymentProgressionId = "844a6215-8413-41ba-96b0-b4cc7041ca33";
+        private const string InvalidCustomerId = "InvalidCustomerId";
+        private const string InvalidEmploymentProgressionId = "InvalidEmploymentProgressionId";
+
+        private EmploymentProgressionPatch ValidEmploymentProgressionPatch = new EmploymentProgressionPatch();
+        private EmploymentProgressionPatch InvalidEmploymentProgressionPatch = null;
+        private List<ValidationResult> ValidationResultNoErrors = new List<ValidationResult>();
+        private List<ValidationResult> ValidationResultOneError = new List<ValidationResult>()
+        {
+            new ValidationResult("Please supply a valid value for Economic Shock Status", new[] { "EconomicShockStatus" })
+        };
 
         [Fact]
-        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        public async Task Patch_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            // Arrange
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("")
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
+        public async Task Patch_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("")
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
+        public async Task Patch_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), InvalidCustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), InvalidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Get_EmploymentProgressionIdIsNotValidGuid_ReturnBadRequest()
+        public async Task Patch_EmploymentProgressionIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, InvalidEmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, InvalidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Get_InvalidBody_ReturnBadRequest()
+        public async Task Patch_InvalidBody_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns((EmploymentProgressionPatch)null);
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(InvalidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(InvalidEmploymentProgressionPatch)
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.NoContent);
         }
 
         [Fact]
-        public async Task Get_ReadOnlyCustomer_ReturnBadRequest()
+        public async Task Patch_ReadOnlyCustomer_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(new EmploymentProgressionPatch());
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.IsCustomerReadOnly(Arg.Any<Guid>()).Returns(true);
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionExistForCustomer(true)
+                .WithCustomerReadOnly(true)
+                .WithCustomerExist(true)
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.Forbidden);
         }
 
         [Fact]
-        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Patch_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(new EmploymentProgressionPatch());
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns(JsonConvert.SerializeObject(new EmploymentProgressionPatch()));
-            EmploymentProgressionPatchTriggerService.GetEmploymentProgressionForCustomerToPatchAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(JsonConvert.SerializeObject(new EmploymentProgressionPatch()));
-            EmploymentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(Arg.Any<Guid>()).Returns(true);
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(false);
-            ResourceHelper.IsCustomerReadOnly(Arg.Any<Guid>()).Returns(false);
-
-            var Valdiator = Substitute.For<IValidate>();
-            List<ValidationResult> ErrorResults = new List<ValidationResult>();
-
-            var validationResult = new ValidationResult("Error MEssage");
-            ErrorResults.Add(validationResult);
-            Valdiator.ValidateResource(Arg.Any<Models.EmploymentProgression>()).Returns(ErrorResults);
-
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionExistForCustomer(false)
+                .WithCustomerReadOnly(false)
+                .WithCustomerExist(false)
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Get_EmploymentProvideDoesNotExistForCustomer_ReturnBadRequest()
+        public async Task Patch_EmploymentProgressionDoesNotExistForCustomer_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(new EmploymentProgressionPatch());
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-            EmploymentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(Arg.Any<Guid>()).Returns(false);
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(InvalidEmploymentProgressionPatch)
+                .WithEmploymentProgressionExistForCustomer(false)
+                .WithCustomerReadOnly(false)
+                .WithCustomerExist(true)
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
-
-            //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task Get_NoEmploymentProgressionPatchData_ReturnNoContent()
-        {
-            // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(new EmploymentProgressionPatch());
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns("AString");
-            EmploymentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(Arg.Any<Guid>()).Returns(true);
-            EmploymentProgressionPatchTriggerService.GetEmploymentProgressionForCustomerToPatchAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns((string)null);
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-
-            var Valdiator = Substitute.For<IValidate>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
-
-            // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.NoContent);
         }
 
         [Fact]
-        public async Task Get_ValidationFailed_ReturnUnprocessableEntity()
+        public async Task Patch_NoEmploymentProgressionPatchData_ReturnNoContent()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(new EmploymentProgressionPatch());
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns(JsonConvert.SerializeObject(new EmploymentProgressionPatch()));
-            EmploymentProgressionPatchTriggerService.GetEmploymentProgressionForCustomerToPatchAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(JsonConvert.SerializeObject(new EmploymentProgressionPatch()));
-            EmploymentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(Arg.Any<Guid>()).Returns(true);
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-
-            ResourceHelper.IsCustomerReadOnly(Arg.Any<Guid>()).Returns(false);
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-
-            var Valdiator = Substitute.For<IValidate>();
-            List<ValidationResult> ErrorResults = new List<ValidationResult>();
-
-            var validationResult = new ValidationResult("Error MEssage");
-            ErrorResults.Add(validationResult);
-            Valdiator.ValidateResource(Arg.Any<Models.EmploymentProgression>()).Returns(ErrorResults);
-
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(InvalidEmploymentProgressionPatch)
+                .WithEmploymentProgressionExistForCustomer(true)
+                .WithCustomerReadOnly(false)
+                .WithCustomerExist(true)
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
+
+            //Assert
+            Assert.True(response.StatusCode == HttpStatusCode.NoContent);
+        }
+
+        [Fact]
+        public async Task Patch_ValidationFailed_ReturnUnprocessableEntity()
+        {
+            // arrange
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionExistForCustomer(true)
+                .WithCustomerReadOnly(false)
+                .WithCustomerExist(true)
+                .WithValidation(ValidationResultOneError)
+                .Build();
+
+            // Act
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
+
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.UnprocessableEntity);
         }
 
         [Fact]
-        public async Task Get_SuccessRequest_ReturnOk()
+        public async Task Patch_SuccessRequest_ReturnOk()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(new EmploymentProgressionPatch());
-
-            var employmentProgressionPatch = new EmploymentProgressionPatch();
-            RequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(Arg.Any<HttpRequest>()).Returns(employmentProgressionPatch);
-
-            var EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
-            EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns(JsonConvert.SerializeObject(new EmploymentProgressionPatch()));
-            EmploymentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(Arg.Any<Guid>()).Returns(true);
-
-            var JsonHelper = new JsonHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.IsCustomerReadOnly(Arg.Any<Guid>()).Returns(false);
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-
-            var Valdiator = Substitute.For<IValidate>();
-            List<ValidationResult> ErrorResults = new List<ValidationResult>();
-            Valdiator.ValidateResource(Arg.Any<Models.EmploymentProgression>()).Returns(ErrorResults);
-
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionPatchTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionPatchTriggerService,
-                JsonHelper,
-                ResourceHelper,
-                Valdiator,
-                LoggerHelper
-                );
+            var builder = new EmploymentProgressionPatchTriggerBuilder();
+            var employmentProgressionPatchTrigger = builder
+                .WithTouchPointId("0000000001")
+                .WithDssApimUrl("http://www.google.com")
+                .WithResourceFromRequest(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionPatch(ValidEmploymentProgressionPatch)
+                .WithEmploymentProgressionExistForCustomer(true)
+                .WithCustomerReadOnly(false)
+                .WithCustomerExist(true)
+                .WithValidation(ValidationResultNoErrors)
+                .Build();
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), CustomerId, EmploymentProgressionId);
+            var response = await employmentProgressionPatchTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
             Assert.True(response.StatusCode == HttpStatusCode.OK);

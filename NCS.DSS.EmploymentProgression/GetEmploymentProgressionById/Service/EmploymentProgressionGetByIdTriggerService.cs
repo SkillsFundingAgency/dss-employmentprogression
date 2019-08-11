@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service
 {
-    public class EmploymentProgressionGetByIdService : IEmploymentProgressionGetByIdService
+    public class EmploymentProgressionGetByIdTriggerService : IEmploymentProgressionGetByIdTriggerService
     {
         private readonly IDocumentDBProvider _documentDbProvider;
         private readonly IServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionGetByIdService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionGetByIdTriggerService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;

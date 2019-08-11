@@ -1,4 +1,5 @@
-﻿using DFC.JSON.Standard;
+﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+using DFC.JSON.Standard;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.ServiceBus;
@@ -65,7 +66,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
 
                 if (employmentProgressionPatch.DateOfEmployment.HasValue)
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["DateOfEmployment"], employmentProgressionPatch.DateOfEmployment);
-              
+
                 if (employmentProgressionPatch.DateOfLastEmployment.HasValue)
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["DateOfLastEmployment"], employmentProgressionPatch.DateOfLastEmployment);
 
@@ -126,6 +127,17 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
         {
             employmentProgressionPatch.LastModifiedTouchpointID = touchpointId;
             employmentProgressionPatch.EmploymentProgressionId = employmentProgressionGuid;
+        }
+
+        public void SetLongitudeAndLatitude(EmploymentProgressionPatch employmentProgressionPatchRequest, Position position)
+        {
+            if (position == null || employmentProgressionPatchRequest == null)
+            {
+                return;
+            }
+
+            employmentProgressionPatchRequest.Longitude = position.Lon;
+            employmentProgressionPatchRequest.Latitude = position.Lat;
         }
     }
 }

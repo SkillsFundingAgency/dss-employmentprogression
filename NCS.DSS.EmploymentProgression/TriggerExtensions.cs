@@ -10,6 +10,8 @@ using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.ServiceBus;
 using NCS.DSS.EmploymentProgression.Validators;
 using System;
+using NCS.DSS.EmployeeProgression.GeoCoding;
+using DFC.GeoCoding.Standard.AzureMaps.Service;
 
 
 // todo make this file into a nuget package / or add to an exiting nuget package under its own namespace
@@ -19,20 +21,23 @@ namespace NCS.DSS.EmploymentProgression
     {
         public static IServiceCollection AddTriggerSupport(this IServiceCollection services)
         {
-            services.AddTransient<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+            services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
+
             services.AddTransient<IServiceBusClient, ServiceBusClient>();
-            services.AddTransient<IDocumentDBProvider, DocumentDBProvider>();
             services.AddTransient<IValidate, Validate>();
 
+            services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+            services.AddScoped<IGeoCodingService, GeoCodingService>();
+            services.AddScoped<IAzureMapService, AzureMapService>();
             return services;
         }
 
         public static IServiceCollection AddTriggerHelpers(this IServiceCollection services)
         {
-            services.AddTransient<IHttpRequestHelper, HttpRequestHelper>();
-            services.AddTransient<IJsonHelper, JsonHelper>();
-            services.AddTransient<IResourceHelper, ResourceHelper>();
-            services.AddTransient<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
+            services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
+            services.AddSingleton<IJsonHelper, JsonHelper>();
+            services.AddSingleton<IResourceHelper, ResourceHelper>();
+            services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
             services.AddSingleton<ILoggerHelper, LoggerHelper>();
 
             return services;
@@ -43,6 +48,7 @@ namespace NCS.DSS.EmploymentProgression
             var settings = GetConfigurationSettings();
             services.AddSingleton(settings);
             services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
+
 
             return services;
         }
@@ -57,6 +63,11 @@ namespace NCS.DSS.EmploymentProgression
                 BaseAddress = Environment.GetEnvironmentVariable("BaseAddress"),
                 QueueName = Environment.GetEnvironmentVariable("QueueName"),
                 ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString"),
+
+                AzureMapURL = Environment.GetEnvironmentVariable("AzureMapURL"),
+                AzureMapApiVersion = Environment.GetEnvironmentVariable("AzureMapApiVersion"),
+                AzureMapSubscriptionKey = Environment.GetEnvironmentVariable("AzureMapSubscriptionKey"),
+                AzureCountrySet = Environment.GetEnvironmentVariable("AzureCountrySet"),
             };
 
             return settings;

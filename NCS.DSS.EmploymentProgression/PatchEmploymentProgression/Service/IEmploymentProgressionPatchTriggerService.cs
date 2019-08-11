@@ -1,4 +1,5 @@
-﻿using NCS.DSS.EmploymentProgression.Models;
+﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+using NCS.DSS.EmploymentProgression.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -13,5 +14,6 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
         bool DoesEmploymentProgressionExistForCustomer(Guid customerId);
         Task<bool> DoesCustomerExist(Guid customerId);
         void SetIds(EmploymentProgressionPatch employmentProgressionPatch, Guid employmentProgressionGuid, string touchpointId);
+        void SetLongitudeAndLatitude(EmploymentProgressionPatch employmentProgressionPatchRequest, Position position);
     }
 }

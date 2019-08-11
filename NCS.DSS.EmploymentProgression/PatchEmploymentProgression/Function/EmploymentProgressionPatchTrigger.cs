@@ -18,6 +18,8 @@ using System;
 using Newtonsoft.Json;
 using System.Linq;
 using DFC.Common.Standard.GuidHelper;
+using DFC.GeoCoding.Standard.AzureMaps.Model;
+using NCS.DSS.EmployeeProgression.GeoCoding;
 
 namespace NCS.DSS.EmploymentProgression.Function
 {
@@ -33,6 +35,7 @@ namespace NCS.DSS.EmploymentProgression.Function
         private readonly IResourceHelper _resourceHelper;
         private readonly IValidate _validate;
         private readonly ILoggerHelper _loggerHelper;
+        private readonly IGeoCodingService _geoCodingService;
 
         public EmploymentProgressionPatchTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -41,7 +44,8 @@ namespace NCS.DSS.EmploymentProgression.Function
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             IValidate validate,
-            ILoggerHelper loggerHelper
+            ILoggerHelper loggerHelper,
+            IGeoCodingService geoCodingService
             )
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
@@ -51,6 +55,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             _resourceHelper = resourceHelper;
             _validate = validate;
             _loggerHelper = loggerHelper;
+            _geoCodingService = geoCodingService;
         }
 
         [FunctionName(FunctionName)]
@@ -97,16 +102,16 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.BadRequest(employmentProgressionGuid);
             }
 
-            EmploymentProgressionPatch employmentProgressionPatch;
-            employmentProgressionPatch = await _httpRequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(req);
+            EmploymentProgressionPatch employmentProgressionPatchRequest;
+            employmentProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(req);
 
-            if (employmentProgressionPatch == null)
+            if (employmentProgressionPatchRequest == null)
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"A patch body was not provided. CorrelationId: {correlationGuid}.");
                 return _httpResponseMessageHelper.NoContent();
             }
 
-            _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatch, employmentProgressionGuid, touchpointId);
+            _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatchRequest, employmentProgressionGuid, touchpointId);
 
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
@@ -134,7 +139,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.NoContent(employmentProgressionGuid);
             }
 
-            var patchedEmploymentProgressionAsJson = _employmentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatch);
+            var patchedEmploymentProgressionAsJson = _employmentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatchRequest);
             if (patchedEmploymentProgressionAsJson == null)
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Employment progression does not exist for {employmentProgressionGuid}.");
@@ -166,6 +171,30 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
+
+
+            if (!string.IsNullOrEmpty(employmentProgressionPatchRequest.EmployerPostcode))
+            {
+                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Attempting to get long and lat for postcode");
+                Position position;
+
+                try
+                {
+                    var employerPostcode = employmentProgressionPatchRequest.EmployerPostcode.Replace(" ", string.Empty);
+                    position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
+
+                }
+                catch (Exception e)
+                {
+                    _loggerHelper.LogException(logger, correlationGuid, string.Format("Unable to get long and lat for postcode: {0}", employmentProgressionPatchRequest.EmployerPostcode), e);
+                    throw;
+                }
+
+                _employmentProgressionPatchTriggerService.SetLongitudeAndLatitude(employmentProgressionPatchRequest, position);
+            }
+
+
+
             var updatedEmploymentProgression = await _employmentProgressionPatchTriggerService.UpdateCosmosAsync(patchedEmploymentProgressionAsJson, employmentProgressionGuid);
             if (updatedEmploymentProgression != null)
             {
@@ -176,9 +205,9 @@ namespace NCS.DSS.EmploymentProgression.Function
 
             _loggerHelper.LogMethodExit(logger);
 
-            return employmentProgressionPatch == null ?
+            return employmentProgressionPatchRequest == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(employmentProgressionPatch, "id", "EmploymentProgressionId"));
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(employmentProgressionPatchRequest, "id", "EmploymentProgressionId"));
         }
     }
 }

@@ -12,8 +12,8 @@ namespace NCS.DSS.EmploymentProgression
         {
             services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
             services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
-            services.AddTransient<IEmploymentProgressionsGetTriggerService, EmploymentProgressionsGetTriggerService>();
-            services.AddTransient<IEmploymentProgressionGetByIdService, EmploymentProgressionGetByIdService>();
+            services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
+            services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
 
             return services;
         }

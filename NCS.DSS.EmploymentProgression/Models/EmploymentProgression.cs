@@ -10,6 +10,8 @@ namespace NCS.DSS.EmploymentProgression.Models
 {
     public class EmploymentProgression : IEmploymentProgression
     {
+        private const string PostcodeRegEx = @"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})";
+
         [Display(Description = "Unique identifier for a Employment Progression record")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
         [JsonProperty(PropertyName = "id")]
@@ -49,18 +51,21 @@ namespace NCS.DSS.EmploymentProgression.Models
         [StringLength(500)]
         public string EmployerAddress { get; set; }
 
-        [Display(Description = "Postcode of the employer")]
-        [Example(Description = "CV12 1CS")]
         [StringLength(10)]
+        [RegularExpression(PostcodeRegEx, ErrorMessage = "Please enter a valid postcode")]
+        [Display(Description = "Employer postcode")]
+        [Example(Description = "AA11AA")]
         public string EmployerPostcode { get; set; }
 
-        [Display(Description = "Latitude of the employer")]
-        [Example(Description = "38.8951")]
+        [RegularExpression(@"^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$")]
+        [Display(Description = "Geocoded address information")]
+        [Example(Description = "52.40100")]
         [JsonIgnoreOnSerialize]
         public double? Latitude { get; set; }
 
-        [Display(Description = "Longitude of the employer")]
-        [Example(Description = "-77.0364")]
+        [RegularExpression(@"^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$")]
+        [Display(Description = "Geocoded address information")]
+        [Example(Description = "-1.50812")]
         [JsonIgnoreOnSerialize]
         public double? Longitude { get; set; }
 

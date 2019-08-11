@@ -20,7 +20,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var ResponseMessageHelper = new HttpResponseMessageHelper();
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
 
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdService>();
+            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
@@ -51,7 +51,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var RequestHelper = Substitute.For<IHttpRequestHelper>();
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
 
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdService>();
+            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
@@ -84,7 +84,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
             RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
 
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdService>();
+            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
@@ -117,7 +117,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
             RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
 
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdService>();
+            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
@@ -151,7 +151,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
             RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
 
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdService>();
+            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();

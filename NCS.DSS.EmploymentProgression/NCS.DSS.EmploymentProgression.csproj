@@ -4,6 +4,7 @@
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DFC.GeoCoding.Standard" Version="1.0.4" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
     <PackageReference Include="DFC.Common.Standard" Version="0.1.1" />
     <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />

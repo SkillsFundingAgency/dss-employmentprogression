@@ -24,7 +24,7 @@ namespace NCS.DSS.EmploymentProgression
 
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
-        private readonly IEmploymentProgressionGetByIdService _EmploymentProgressionByIdService;
+        private readonly IEmploymentProgressionGetByIdTriggerService _employmentProgressionGetByIdTriggerService;
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILoggerHelper _loggerHelper;
@@ -32,7 +32,7 @@ namespace NCS.DSS.EmploymentProgression
         public EmploymentProgressionGetByIdTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
-            IEmploymentProgressionGetByIdService EmploymentProgressionByIdService,
+            IEmploymentProgressionGetByIdTriggerService EmploymentProgressionGetByIdTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
             ILoggerHelper loggerHelper
@@ -40,7 +40,7 @@ namespace NCS.DSS.EmploymentProgression
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
-            _EmploymentProgressionByIdService = EmploymentProgressionByIdService;
+            _employmentProgressionGetByIdTriggerService = EmploymentProgressionGetByIdTriggerService;
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _loggerHelper = loggerHelper;
@@ -96,7 +96,7 @@ namespace NCS.DSS.EmploymentProgression
                 return _httpResponseMessageHelper.BadRequest(employmentProgressionGuid);
             }
 
-            var employmentProgression = await _EmploymentProgressionByIdService.GetEmploymentProgressionForCustomerAsync(customerGuid, employmentProgressionGuid);
+            var employmentProgression = await _employmentProgressionGetByIdTriggerService.GetEmploymentProgressionForCustomerAsync(customerGuid, employmentProgressionGuid);
 
             _loggerHelper.LogMethodExit(logger);
 
