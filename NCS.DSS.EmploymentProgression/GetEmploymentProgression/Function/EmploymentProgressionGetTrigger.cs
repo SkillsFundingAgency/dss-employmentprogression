@@ -7,13 +7,14 @@ using System.Net.Http;
 using System.Net;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.LearningProgression
 {
     public class EmploymentProgressionGetTrigger
     {
         const string RouteValue = "customers/{customerId}/EmploymentProgessions";
-        const string FunctionName = "get";
+        const string FunctionName = "Get";
 
         public EmploymentProgressionGetTrigger()
         {
@@ -27,6 +28,7 @@ namespace NCS.DSS.LearningProgression
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this Employment progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Employment progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(EmploymentProgression.Models.EmploymentProgression), (int)HttpStatusCode.OK)]
+        [Display(Name = "Get", Description = "Ability to return all employment progression for the given customer.")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId)
         {
