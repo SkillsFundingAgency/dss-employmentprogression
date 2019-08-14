@@ -14,13 +14,14 @@ using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using DFC.JSON.Standard;
 using NCS.DSS.Contact.Cosmos.Helper;
 using DFC.Common.Standard.Logging;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.EmploymentProgression
 {
     public class EmploymentProgressionGetByIdTrigger
     {
         const string RouteValue = "customers/{customerId}/employmentprogessions/{EmploymentProgressionId}";
-        const string FunctionName = "getById";
+        const string FunctionName = "GetById";
 
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
@@ -47,13 +48,14 @@ namespace NCS.DSS.EmploymentProgression
         }
 
         [FunctionName(FunctionName)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Employment progression created.", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Employment progression found.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this Employment progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Employment progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.EmploymentProgression), (int)HttpStatusCode.OK)]
+        [Display(Name = "Get", Description = "Ability to retrieve an individual employment progression for the given customer.")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId, string EmploymentProgressionId)
         {

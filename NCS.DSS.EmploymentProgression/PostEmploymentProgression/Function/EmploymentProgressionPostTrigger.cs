@@ -18,13 +18,14 @@ using DFC.Common.Standard.Logging;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using DFC.GeoCoding.Standard.AzureMaps.Model;
 using NCS.DSS.EmployeeProgression.GeoCoding;
+using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.EmploymentProgression
 {
     public class EmploymentProgressionPostTrigger
     {
         const string RouteValue = "customers/{customerId}/employmentprogressions";
-        const string FunctionName = "post";
+        const string FunctionName = "Post";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IEmploymentProgressionPostTriggerService _employmentProgressionPostTriggerService;
@@ -58,12 +59,18 @@ namespace NCS.DSS.EmploymentProgression
         [FunctionName(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Employment progression created.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed.", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this Employment progression.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Employment progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.EmploymentProgression), (int)HttpStatusCode.OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId)
+        [Display(Name = "Post", Description = "Ability to create a new employment progression for a customer. <br>" +
+                                              "<br> <b>Validation Rules:</b> <br>" +
+                                              "<br><b>EconomicShockCode:</b> Mandatory if EconomicShockStatus = 2 - Government defined economic shock. <br>" +
+                                              "<br><b>EmploymentHours:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item must be a valid EmploymentHours reference data item<br>" +
+                                              "<br><b>DateOfEmployment:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item is mandatory, ISO8601:2004 <= datetime.now <br>"
+                                                )]
+           public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId)
         {
             _loggerHelper.LogMethodEnter(logger);
 

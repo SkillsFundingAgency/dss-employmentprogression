@@ -13,8 +13,7 @@ namespace NCS.DSS.EmploymentProgression.APIDefinition
         public const string ApiTitle = "EmploymentProgressions";
         public const string ApiDefinitionName = "API-Definition";
         public const string ApiDefRoute = ApiTitle + "/" + ApiDefinitionName;
-        public const string ApiDescription = "To support the Data Collections integration with DSS, " +
-                                             "initial release of Employment Progression";
+        public const string ApiDescription = "Initial release of Employment Progression";
         public const string Method = "get";
 
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
