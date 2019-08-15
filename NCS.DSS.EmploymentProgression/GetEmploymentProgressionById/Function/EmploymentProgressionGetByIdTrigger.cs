@@ -13,7 +13,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class EmploymentProgressionGetByIdTrigger
     {
-        const string RouteValue = "customers/{customerId}/employmentprogessions/{EmploymentProgessionId}";
+        const string RouteValue = "customers/{customerId}/employmentprogressions/{EmploymentProgressionId}";
         const string FunctionName = "GetById";
 
         public EmploymentProgressionGetByIdTrigger()
@@ -30,7 +30,7 @@ namespace NCS.DSS.LearningProgression
         [ProducesResponseType(typeof(EmploymentProgression.Models.EmploymentProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual employment progression for the given customer.")]
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
-            HttpRequest req, ILogger logger, string customerId, string EmploymentProgessionId)
+            HttpRequest req, ILogger logger, string customerId, string EmploymentProgressionId)
         {
             return new HttpResponseMessage(HttpStatusCode.OK);
         }

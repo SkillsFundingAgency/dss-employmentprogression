@@ -13,7 +13,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class EmploymentProgressionPatchTrigger
     {
-        const string RouteValue = "customers/{customerId}/employmentprogessions/{EmploymentProgessionId}";
+        const string RouteValue = "customers/{customerId}/employmentprogressions/{EmploymentProgressionId}";
         const string FunctionName = "Patch";
 
         public EmploymentProgressionPatchTrigger()
@@ -34,7 +34,7 @@ namespace NCS.DSS.LearningProgression
                                                "<br><b>DateOfEmployment:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item is mandatory, ISO8601:2004 <= datetime.now <br>"
                                                 )]
         [ProducesResponseType(typeof(EmploymentProgression.Models.EmploymentProgression), (int)HttpStatusCode.OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string EmploymentProgessionId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string EmploymentProgressionId)
         {
             return new HttpResponseMessage(HttpStatusCode.OK);
         }

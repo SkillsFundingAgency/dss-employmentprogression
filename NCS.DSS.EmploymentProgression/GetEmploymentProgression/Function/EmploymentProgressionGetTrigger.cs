@@ -13,7 +13,7 @@ namespace NCS.DSS.LearningProgression
 {
     public class EmploymentProgressionGetTrigger
     {
-        const string RouteValue = "customers/{customerId}/EmploymentProgessions";
+        const string RouteValue = "customers/{customerId}/EmploymentProgressions";
         const string FunctionName = "Get";
 
         public EmploymentProgressionGetTrigger()
