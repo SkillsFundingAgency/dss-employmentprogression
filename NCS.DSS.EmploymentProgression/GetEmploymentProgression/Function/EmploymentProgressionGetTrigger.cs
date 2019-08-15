@@ -20,7 +20,7 @@ namespace NCS.DSS.EmploymentProgression
 {
     public class EmploymentProgressionGetTrigger
     {
-        const string RouteValue = "customers/{customerId}/EmploymentProgessions";
+        const string RouteValue = "customers/{customerId}/EmploymentProgressions";
         const string FunctionName = "Get";
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;

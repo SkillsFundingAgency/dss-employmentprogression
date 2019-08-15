@@ -26,7 +26,7 @@ namespace NCS.DSS.EmploymentProgression.Function
 {
     public class EmploymentProgressionPatchTrigger
     {
-        const string RouteValue = "customers/{customerId}/employmentprogessions/{EmploymentProgessionId}";
+        const string RouteValue = "customers/{customerId}/employmentprogressions/{EmploymentProgressionId}";
         const string FunctionName = "Patch";
 
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
@@ -73,7 +73,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                                                "<br><b>EmploymentHours:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item must be a valid EmploymentHours reference data item<br>" +
                                                "<br><b>DateOfEmployment:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item is mandatory, ISO8601:2004 <= datetime.now <br>"
                                                 )]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string EmploymentProgessionId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId, string EmploymentProgressionId)
         {
             _loggerHelper.LogMethodEnter(logger);
 
@@ -104,7 +104,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
-            if (!Guid.TryParse(EmploymentProgessionId, out var employmentProgressionGuid))
+            if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'employmentProgressionId' to a Guid: {employmentProgressionGuid}");
                 return _httpResponseMessageHelper.BadRequest(employmentProgressionGuid);
