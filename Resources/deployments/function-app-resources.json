@@ -34,6 +34,9 @@
         },
         "storageAccountKey": {
             "type": "string"
+        },
+        "azureMapSubscriptionKey": {
+            "type": "securestring"
         }
     },
     "variables": {
@@ -106,6 +109,22 @@
                         {
                           "name": "QueueName",
                           "value": "[parameters('serviceBusQueueName')]"
+                        },
+                        {
+                            "name": "AzureMapURL",
+                            "value": "https://atlas.microsoft.com/search"
+                        },
+                        {
+                            "name": "AzureMapApiVersion",
+                            "value": "1.0"
+                        },
+                        {
+                            "name": "AzureMapSubscriptionKey",
+                            "value": "[parameters('azureMapSubscriptionKey')]"
+                        },
+                        {
+                            "name": "AzureCountrySet",
+                            "value": "GB"
                         }
                     ]
                 }
