@@ -42,7 +42,7 @@
             "type": "string"
         },
         "azureMapSubscriptionKey": {
-            "type": "string"
+            "type": "securestring"
         }
     },
     "variables": {
