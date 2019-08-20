@@ -39,7 +39,7 @@
             "value": "not-a-real-key"
         },
         "templateBaseUrl": {
-            "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-employmentprogression/SDD-127-AddAzureMapsAppSettings-v3/Resources/"
+            "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-employmentprogression/master-v3/Resources/"
         },
         "azureMapSubscriptionKey": {
             "value": "not-a-real-api-key"
