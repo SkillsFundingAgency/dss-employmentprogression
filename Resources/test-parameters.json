@@ -40,6 +40,9 @@
         },
         "templateBaseUrl": {
             "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-employmentprogression/master-v3/Resources/"
+        },
+        "azureMapSubscriptionKey": {
+            "value": "not-a-real-api-key"
         }
     }
 }

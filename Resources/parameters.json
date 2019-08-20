@@ -40,6 +40,9 @@
         },
         "templateBaseUrl": {
             "value": "__NestedArmTemplateBaseUrl__"
+        },
+        "azureMapSubscriptionKey": {
+            "value": "__AzureMapSubscriptionKey__"
         }
     }
 }
