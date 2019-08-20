@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace NCS.DSS.EmploymentProgression.APIDefinition
 {
-    public class ApiDefinition
+    public class GenerateEmploymentProgressionSwaggerDoc
     {
         public const string ApiTitle = "EmploymentProgressions";
         public const string ApiDefinitionName = "API-Definition";
@@ -19,7 +19,7 @@ namespace NCS.DSS.EmploymentProgression.APIDefinition
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
         public const string ApiVersion = "3.0.0";
 
-        public ApiDefinition(ISwaggerDocumentGenerator swaggerDocumentGenerator)
+        public GenerateEmploymentProgressionSwaggerDoc(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
             _swaggerDocumentGenerator = swaggerDocumentGenerator;
         }
@@ -29,6 +29,11 @@ namespace NCS.DSS.EmploymentProgression.APIDefinition
         {
             var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription, 
                 ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly(), false);
+
+            if (string.IsNullOrEmpty(swaggerDoc))
+            {
+                return new HttpResponseMessage(HttpStatusCode.NoContent);
+            }
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
