@@ -77,7 +77,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedDate"], employmentProgressionPatch.LastModifiedDate);
 
                 if (!string.IsNullOrEmpty(employmentProgressionPatch.LastModifiedTouchpointId))
-                    _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedTouchpointID"], employmentProgressionPatch.LastModifiedTouchpointId);
+                    _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedTouchpointId"], employmentProgressionPatch.LastModifiedTouchpointId);
 
                 if (!string.IsNullOrEmpty(employmentProgressionPatch.CreatedBy))
                 {
