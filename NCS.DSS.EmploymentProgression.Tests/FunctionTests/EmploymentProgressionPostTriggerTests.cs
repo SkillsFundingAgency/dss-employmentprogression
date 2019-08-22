@@ -17,6 +17,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private Models.EmploymentProgression ValidEmploymentProgression = new Models.EmploymentProgression();
         private Models.EmploymentProgression InvalidEmploymentProgression = null;
         private List<ValidationResult> ValidationResultNoErrors = new List<ValidationResult>();
+
         private List<ValidationResult> ValidationResultOneError = new List<ValidationResult>()
         {
             new ValidationResult("Please supply a valid value for Economic Shock Status", new[] { "EconomicShockStatus" })
@@ -73,15 +74,16 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Fact]
-        public async Task Post_InvalidBody_ReturnBadRequest()
+        public async Task Post_InvalidBody_ReturnUnprocessableEntity()
         {
             // arrange
             var builder = new EmploymentProgressionPostTriggerBuilder();
             var employmentProgressionPostTrigger = builder
                 .WithTouchPointId("0000000001")
                 .WithDssApimUrl("http://www.google.com")
-                .WithResourceFromRequest(InvalidEmploymentProgression)
+                .WithResourceFromRequestGenerateException()
                 .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
+                .WithValidation(ValidationResultNoErrors)
                 .WithCustomerExist(true)
                 .WithCustomerReadOnly(false)
                 .Build();
@@ -90,7 +92,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await employmentProgressionPostTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.NoContent);
+            Assert.True(response.StatusCode == HttpStatusCode.UnprocessableEntity);
         }
 
         [Fact]
@@ -182,27 +184,27 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Fact]
-        public async Task Post_GetFromResourceIsNull_ReturnNoContent()
+        public async Task Post_GetFromResourceIsNull_ReturnUnprocessableEntityt()
         {
             // arrange
             var builder = new EmploymentProgressionPostTriggerBuilder();
             var employmentProgressionPostTrigger = builder
                 .WithTouchPointId("0000000001")
                 .WithDssApimUrl("http://www.google.com")
-                .WithResourceFromRequest(ValidEmploymentProgression)
+                .WithResourceFromRequest(InvalidEmploymentProgression)
                 .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
                 .WithEmploymentProgressionExistForCustomer(false)
                 .WithCustomerReadOnly(false)
                 .WithCustomerExist(true)
                 .WithResourceFromRequest(null)
-                .WithValidation(ValidationResultOneError)
+                .WithValidation(ValidationResultNoErrors)
                 .Build();
 
             // Act
             var response = await employmentProgressionPostTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.NoContent);
+            Assert.True(response.StatusCode == HttpStatusCode.UnprocessableEntity);
         }
 
         [Fact]
@@ -230,7 +232,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Fact]
-        public async Task Post_SuccessRequest_ReturnOk()
+        public async Task Post_SuccessfulRequest_ReturnCreated()
         {
             // arrange
             var builder = new EmploymentProgressionPostTriggerBuilder();
@@ -249,7 +251,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await employmentProgressionPostTrigger.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), ValidCustomerId);
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            Assert.True(response.StatusCode == HttpStatusCode.Created);
         }
     }
 }

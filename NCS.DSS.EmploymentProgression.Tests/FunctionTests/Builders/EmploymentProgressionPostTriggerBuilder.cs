@@ -13,6 +13,7 @@ using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using DFC.JSON.Standard;
 using System;
 using Newtonsoft.Json;
+using NSubstitute.ExceptionExtensions;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
 {
@@ -103,10 +104,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
             Valdiator.ValidateResource(Arg.Any<Models.EmploymentProgression>()).Returns(validation);
             return this;
         }
-
-        public EmploymentProgressionPostTriggerBuilder With(string touchpointId)
+        
+        public EmploymentProgressionPostTriggerBuilder WithResourceFromRequestGenerateException()
         {
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns(touchpointId);
+            RequestHelper.GetResourceFromRequest<Models.EmploymentProgression>(Arg.Any<HttpRequest>()).Returns<Models.EmploymentProgression>(x => { throw new Exception(); });
             return this;
         }
     }

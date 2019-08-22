@@ -19,6 +19,7 @@ using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using DFC.GeoCoding.Standard.AzureMaps.Model;
 using NCS.DSS.EmployeeProgression.GeoCoding;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace NCS.DSS.EmploymentProgression
 {
@@ -123,11 +124,19 @@ namespace NCS.DSS.EmploymentProgression
             _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Attempt to get resource from body of the request correlationId {correlationGuid}.");
 
             Models.EmploymentProgression employmentProgressionRequest;
-            employmentProgressionRequest = await _httpRequestHelper.GetResourceFromRequest<Models.EmploymentProgression>(req);
+            try
+            {
+                employmentProgressionRequest = await _httpRequestHelper.GetResourceFromRequest<Models.EmploymentProgression>(req);
+            }
+            catch (Exception ex)
+            {
+                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
+                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
+            }      
+
             if (employmentProgressionRequest == null)
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"A post body was not provided. CorrelationId: {correlationGuid}.");
-                return _httpResponseMessageHelper.NoContent();
+                return _httpResponseMessageHelper.UnprocessableEntity();
             }
 
             _employmentProgressionPostTriggerService.SetIds(employmentProgressionRequest, customerGuid, touchpointId);
@@ -149,22 +158,20 @@ namespace NCS.DSS.EmploymentProgression
                 {
                     var employerPostcode = employmentProgressionRequest.EmployerPostcode.Replace(" ", string.Empty);
                     position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
+                    _employmentProgressionPostTriggerService.SetLongitudeAndLatitude(employmentProgressionRequest, position);
 
                 }
                 catch (Exception e)
                 {
                     _loggerHelper.LogException(logger, correlationGuid, string.Format("Unable to get long and lat for postcode: {0}", employmentProgressionRequest.EmployerPostcode), e);
-                    throw;
                 }
-
-                _employmentProgressionPostTriggerService.SetLongitudeAndLatitude(employmentProgressionRequest, position);
             }
 
             var employmentProgressionResult = await _employmentProgressionPostTriggerService.CreateEmploymentProgressionAsync(employmentProgressionRequest);
             if (employmentProgressionResult == null)
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to create Employment progression for customerId {customerGuid}, correlationId {correlationGuid}.");
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                return _httpResponseMessageHelper.NoContent(customerGuid);
             }
 
             _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Sending newly created Employment Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
@@ -174,7 +181,7 @@ namespace NCS.DSS.EmploymentProgression
 
             return employmentProgressionRequest == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(employmentProgressionRequest, "id", "EmploymentProgressionId"));
+            _httpResponseMessageHelper.Created(_jsonHelper.SerializeObjectAndRenameIdProperty(employmentProgressionRequest, "id", "EmploymentProgressionId"));
         }
     }
 }

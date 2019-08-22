@@ -43,66 +43,108 @@ namespace NCS.DSS.EmploymentProgression.Validators
             {
                 if (_employmentProgressionResource.DateProgressionRecorded.Value > DateTime.UtcNow)
                 {
-                    _results.Add(new ValidationResult("Date And Time must be less the current date/time", new[] { "DateProgressionRecorded" }));
+                    _results.Add(new ValidationResult("DateProgressionRecorded must be less or equal to now.", new[] { "DateProgressionRecorded" }));
                 }
             }
         }
 
         private void ValidateEmploymentStatus()
         {
-            if (!Enum.IsDefined(typeof(CurrentEmploymentStatus), _employmentProgressionResource.CurrentEmploymentStatus))
+            if (_employmentProgressionResource.CurrentEmploymentStatus.HasValue)
             {
-                _results.Add(new ValidationResult("Please supply a valid value for Current Employment Status", new[] { "CurrentEmploymentStatus" }));
+                if (!Enum.IsDefined(typeof(CurrentEmploymentStatus), _employmentProgressionResource.CurrentEmploymentStatus))
+                {
+                    _results.Add(new ValidationResult("CurrentEmploymentStatus must have a valid Employment Status.", new[] { "CurrentEmploymentStatus" }));
+                }
             }
         }
 
         private void ValidateEconomicShockStatus()
         {
-            if (!Enum.IsDefined(typeof(EconomicShockStatus), _employmentProgressionResource.EconomicShockStatus))
+            if (_employmentProgressionResource.EconomicShockStatus.HasValue)
             {
-                _results.Add(new ValidationResult("Please supply a valid value for Economic Shock Status", new[] { "EconomicShockStatus" }));
+                if (!Enum.IsDefined(typeof(EconomicShockStatus), _employmentProgressionResource.EconomicShockStatus))
+                {
+                    _results.Add(new ValidationResult("EconomicShockStatus must have a valid Economic Shock Status.", new[] { "EconomicShockStatus" }));
+                }
             }
         }
 
         private void ValidateEconomicShockCode()
         {
-            if (_employmentProgressionResource.EconomicShockStatus == EconomicShockStatus.GovernmentDefinedEconomicShock)
+            if (_employmentProgressionResource.EconomicShockStatus.HasValue && _employmentProgressionResource.EconomicShockStatus == EconomicShockStatus.GovernmentDefinedEconomicShock)
             {
                 if (string.IsNullOrEmpty(_employmentProgressionResource.EconomicShockCode))
                 {
-                    _results.Add(new ValidationResult("EconomicShockCode is required when Economic Shock Status is Government Defined Economic Shock.", new[] { "EconomicShockCode" }));
+                    _results.Add(new ValidationResult("EconomicShockCode must have a value when Government Defined Economic Shock.", new[] { "EconomicShockCode" }));
                 }
             }
         }
 
         private void ValidateEmploymentHours()
         {
-            if (_employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Apprenticeship ||
-                _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Employed ||
-                _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.EmployedAndVoluntaryWork ||
-                _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.RetiredAndVoluntaryWork ||
-                _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.SelfEmployed
-                )
+            if (_employmentProgressionResource.CurrentEmploymentStatus.HasValue)
             {
-                if (!_employmentProgressionResource.EmploymentHours.HasValue)
+                if (_employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Apprenticeship ||
+                    _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Employed ||
+                    _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.EmployedAndVoluntaryWork ||
+                    _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.RetiredAndVoluntaryWork ||
+                    _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.SelfEmployed
+                    )
                 {
-                    _results.Add(new ValidationResult("Employment Hours is required when CurrentEmploymentStatus is Apprenticeship, Employed, EmployedAndVoluntaryWork, RetiredAndVoluntaryWork or SelfEmployed.", new[] { "EmploymentHours" }));
+                    if (!_employmentProgressionResource.EmploymentHours.HasValue)
+                    {
+                        _results.Add(new ValidationResult("EmploymentHours must have a value when CurrentEmploymentStatus is Apprenticeship, Employed, EmployedAndVoluntaryWork, RetiredAndVoluntaryWork or SelfEmployed.", new[] { "EmploymentHours" }));
+                    }
+                    else
+                    {
+                        if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                        {
+                            _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
+                        }
+                    }
+                }
+            }
+
+            if (_employmentProgressionResource.EmploymentHours.HasValue)
+            {
+                if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                {
+                    _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
                 }
             }
         }
 
         private void ValidateDateOfEmployment()
         {
-            if (_employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Apprenticeship ||
+            if (_employmentProgressionResource.CurrentEmploymentStatus.HasValue)
+            {
+                if (_employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Apprenticeship ||
                 _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.Employed ||
                 _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.EmployedAndVoluntaryWork ||
                 _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.RetiredAndVoluntaryWork ||
                 _employmentProgressionResource.CurrentEmploymentStatus == CurrentEmploymentStatus.SelfEmployed
                 )
-            {
-                if (!_employmentProgressionResource.DateOfEmployment.HasValue)
                 {
-                    _results.Add(new ValidationResult("Date Of Employment is required when CurrentEmploymentStatus is Apprenticeship, Employed, EmployedAndVoluntaryWork, RetiredAndVoluntaryWork or SelfEmployed.", new[] { "EmploymentHours" }));
+                    if (!_employmentProgressionResource.DateOfEmployment.HasValue)
+                    {
+                        _results.Add(new ValidationResult("DateOfEmployment must have a value when CurrentEmploymentStatus is Apprenticeship, Employed, EmployedAndVoluntaryWork, RetiredAndVoluntaryWork or SelfEmployed.", new[] { "DateOfEmployment" }));
+                    }
+                    else
+                    {
+                        if (_employmentProgressionResource.DateOfEmployment.Value > DateTime.UtcNow)
+                        {
+                            _results.Add(new ValidationResult("DateOfEmployment must be less than or equal to now.", new[] { "DateOfEmployment" }));
+                        }
+                    }
+                }
+            }
+
+            if (_employmentProgressionResource.DateOfEmployment.HasValue)
+            {
+                if (_employmentProgressionResource.DateOfEmployment.Value > DateTime.UtcNow)
+                {
+                    _results.Add(new ValidationResult("DateOfEmployment must be less than or equal to now.", new[] { "DateOfEmployment" }));
                 }
             }
         }
@@ -113,7 +155,7 @@ namespace NCS.DSS.EmploymentProgression.Validators
             {
                 if (_employmentProgressionResource.DateOfLastEmployment.Value > DateTime.UtcNow)
                 {
-                    _results.Add(new ValidationResult("Date And Time must be less the current date/time", new[] { "DateProgressionRecorded" }));
+                    _results.Add(new ValidationResult("DateOfLastEmployment must be less than or equal to now.", new[] { "DateOfLastEmployment" }));
                 }
             }
         }
@@ -135,7 +177,7 @@ namespace NCS.DSS.EmploymentProgression.Validators
             {
                 if (_employmentProgressionResource.LastModifiedDate.Value > DateTime.UtcNow)
                 {
-                    _results.Add(new ValidationResult("Date And Time must be less the current date/time", new[] { "LastModifiedDate" }));
+                    _results.Add(new ValidationResult("LastModifiedDate must be less than or equal to now.", new[] { "LastModifiedDate" }));
                 }
             }
         }
