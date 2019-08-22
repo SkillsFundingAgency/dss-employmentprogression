@@ -21,7 +21,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         DateTime? DateOfLastEmployment { get; set; }
         LengthOfUnemployment? LengthOfUnemployment { get; set; }
         DateTime? LastModifiedDate { get; set; }
-        string LastModifiedTouchpointID { get; set; }
+        string LastModifiedTouchpointId { get; set; }
         string CreatedBy { get; set; }
     }
 }

@@ -76,8 +76,8 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                 if (employmentProgressionPatch.LastModifiedDate.HasValue)
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedDate"], employmentProgressionPatch.LastModifiedDate);
 
-                if (!string.IsNullOrEmpty(employmentProgressionPatch.LastModifiedTouchpointID))
-                    _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedTouchpointID"], employmentProgressionPatch.LastModifiedTouchpointID);
+                if (!string.IsNullOrEmpty(employmentProgressionPatch.LastModifiedTouchpointId))
+                    _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedTouchpointID"], employmentProgressionPatch.LastModifiedTouchpointId);
 
                 if (!string.IsNullOrEmpty(employmentProgressionPatch.CreatedBy))
                 {
@@ -125,7 +125,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
 
         public void SetIds(EmploymentProgressionPatch employmentProgressionPatch, Guid employmentProgressionGuid, string touchpointId)
         {
-            employmentProgressionPatch.LastModifiedTouchpointID = touchpointId;
+            employmentProgressionPatch.LastModifiedTouchpointId = touchpointId;
             employmentProgressionPatch.EmploymentProgressionId = employmentProgressionGuid;
         }
 

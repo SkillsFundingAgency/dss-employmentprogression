@@ -51,7 +51,7 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
         {
             employmentProgression.EmploymentProgressionId = Guid.NewGuid();
             employmentProgression.CustomerId = customerGuid;
-            employmentProgression.LastModifiedTouchpointID = touchpointId;
+            employmentProgression.LastModifiedTouchpointId = touchpointId;
             employmentProgression.CreatedBy = touchpointId;
         }
 
