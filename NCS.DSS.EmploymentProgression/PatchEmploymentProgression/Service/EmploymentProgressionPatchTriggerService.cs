@@ -127,6 +127,11 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
         {
             employmentProgressionPatch.LastModifiedTouchpointId = touchpointId;
             employmentProgressionPatch.EmploymentProgressionId = employmentProgressionGuid;
+
+            if (!employmentProgressionPatch.LastModifiedDate.HasValue)
+            {
+                employmentProgressionPatch.LastModifiedDate = DateTime.UtcNow;
+            }
         }
 
         public void SetLongitudeAndLatitude(EmploymentProgressionPatch employmentProgressionPatchRequest, Position position)

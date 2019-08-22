@@ -21,6 +21,7 @@ using DFC.Common.Standard.GuidHelper;
 using DFC.GeoCoding.Standard.AzureMaps.Model;
 using NCS.DSS.EmployeeProgression.GeoCoding;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace NCS.DSS.EmploymentProgression.Function
 {
@@ -111,7 +112,16 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
 
             EmploymentProgressionPatch employmentProgressionPatchRequest;
-            employmentProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(req);
+
+            try
+            {
+                employmentProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(req);
+            }
+            catch (Exception ex)
+            {
+                _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
+                return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
+            }
 
             if (employmentProgressionPatchRequest == null)
             {
