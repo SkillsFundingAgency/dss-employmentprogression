@@ -14,6 +14,7 @@
         SelfEmployedAndVoluntaryWork = 10,
         Unemployed = 11,
         UnemployedAndVoluntaryWork = 12,
+        UnemployedDueToRedundancy = 13,
         NotNnown = 99,
     }
 }

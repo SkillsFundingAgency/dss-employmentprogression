@@ -43,7 +43,7 @@ namespace NCS.DSS.EmploymentProgression.Validators
             {
                 if (_employmentProgressionResource.DateProgressionRecorded.Value > DateTime.UtcNow)
                 {
-                    _results.Add(new ValidationResult("DateProgressionRecorded must be less or equal to now.", new[] { "DateProgressionRecorded" }));
+                    _results.Add(new ValidationResult("DateProgressionRecorded must be less than or equal to now.", new[] { "DateProgressionRecorded" }));
                 }
             }
         }
@@ -105,12 +105,14 @@ namespace NCS.DSS.EmploymentProgression.Validators
                     }
                 }
             }
-
-            if (_employmentProgressionResource.EmploymentHours.HasValue)
+            else
             {
-                if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                if (_employmentProgressionResource.EmploymentHours.HasValue)
                 {
-                    _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
+                    if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                    {
+                        _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
+                    }
                 }
             }
         }
@@ -139,12 +141,14 @@ namespace NCS.DSS.EmploymentProgression.Validators
                     }
                 }
             }
-
-            if (_employmentProgressionResource.DateOfEmployment.HasValue)
+            else
             {
-                if (_employmentProgressionResource.DateOfEmployment.Value > DateTime.UtcNow)
+                if (_employmentProgressionResource.DateOfEmployment.HasValue)
                 {
-                    _results.Add(new ValidationResult("DateOfEmployment must be less than or equal to now.", new[] { "DateOfEmployment" }));
+                    if (_employmentProgressionResource.DateOfEmployment.Value > DateTime.UtcNow)
+                    {
+                        _results.Add(new ValidationResult("DateOfEmployment must be less than or equal to now.", new[] { "DateOfEmployment" }));
+                    }
                 }
             }
         }

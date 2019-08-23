@@ -223,9 +223,9 @@ namespace NCS.DSS.EmploymentProgression.Function
 
             _loggerHelper.LogMethodExit(logger);
 
-            return employmentProgressionPatchRequest == null ?
+            return updatedEmploymentProgression == null ?
             _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(employmentProgressionPatchRequest, "id", "EmploymentProgressionId"));
+            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectAndRenameIdProperty(updatedEmploymentProgression, "id", "EmploymentProgressionId"));
         }
     }
 }

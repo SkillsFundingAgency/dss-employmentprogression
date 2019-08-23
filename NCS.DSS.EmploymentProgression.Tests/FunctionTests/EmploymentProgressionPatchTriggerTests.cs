@@ -188,6 +188,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 .WithEmploymentProgressionExistForCustomer(true)
                 .WithCustomerReadOnly(false)
                 .WithCustomerExist(true)
+                .WithUpdateCosmos(null)
                 .Build();
 
             // Act
@@ -234,6 +235,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 .WithEmploymentProgressionExistForCustomer(true)
                 .WithCustomerReadOnly(false)
                 .WithCustomerExist(true)
+                .WithUpdateCosmos(new Models.EmploymentProgression())
                 .WithValidation(ValidationResultNoErrors)
                 .Build();
 

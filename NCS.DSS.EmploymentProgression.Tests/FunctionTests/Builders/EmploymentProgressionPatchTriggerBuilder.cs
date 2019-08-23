@@ -86,6 +86,14 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
             return this;
         }
 
+
+        public EmploymentProgressionPatchTriggerBuilder WithUpdateCosmos(Models.EmploymentProgression employmentProgressionFromCosmos)
+        {
+            EmploymentProgressionPatchTriggerService.UpdateCosmosAsync(Arg.Any<string>(), Arg.Any<Guid>()).Returns(employmentProgressionFromCosmos);
+            return this;
+        }
+        
+
         public EmploymentProgressionPatchTriggerBuilder WithCustomerReadOnly(bool customerReadOnly)
         {
             ResourceHelper.IsCustomerReadOnly(Arg.Any<Guid>()).Returns(customerReadOnly);

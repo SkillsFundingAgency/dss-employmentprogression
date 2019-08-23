@@ -53,6 +53,11 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             employmentProgression.CustomerId = customerGuid;
             employmentProgression.LastModifiedTouchpointId = touchpointId;
             employmentProgression.CreatedBy = touchpointId;
+
+            if (!employmentProgression.DateProgressionRecorded.HasValue)
+            {
+                employmentProgression.DateProgressionRecorded = DateTime.UtcNow;
+            }
         }
 
         public void SetLongitudeAndLatitude(Models.EmploymentProgression employmentProgressionRequest, Position position)
