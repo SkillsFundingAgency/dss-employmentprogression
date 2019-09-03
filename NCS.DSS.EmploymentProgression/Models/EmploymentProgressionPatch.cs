@@ -1,6 +1,6 @@
 ﻿using DFC.JSON.Standard.Attributes;
 using DFC.Swagger.Standard.Annotations;
-using NCS.DSS.EmploymentProgression.Enumerations;
+using NCS.DSS.EmploymentProgression.ReferenceData;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +21,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Required]
         public Guid? CustomerId { get; set; }
 
+        [DataType(DataType.DateTime)]
         [Example(Description = "2018-06-21T17:45:00")]
         [Display(Description = "Date and time employment progression was created.")]
         public DateTime? DateProgressionRecorded { get; set; }

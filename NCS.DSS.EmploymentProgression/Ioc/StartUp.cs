@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using NCS.DSS.EmploymentProgression;
+using NCS.DSS.EmploymentProgression.Ioc;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
-namespace NCS.DSS.EmploymentProgression
+namespace NCS.DSS.EmploymentProgression.Ioc
 {
     public class Startup : FunctionsStartup
     {

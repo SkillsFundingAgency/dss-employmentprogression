@@ -1,4 +1,4 @@
-﻿using NCS.DSS.EmploymentProgression.Enumerations;
+﻿using NCS.DSS.EmploymentProgression.ReferenceData;
 using NCS.DSS.EmploymentProgression.Models;
 using System;
 using System.Collections.Generic;
@@ -102,6 +102,13 @@ namespace NCS.DSS.EmploymentProgression.Validators
                         {
                             _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
                         }
+                    }
+                }
+                else
+                {
+                    if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                    {
+                        _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
                     }
                 }
             }
