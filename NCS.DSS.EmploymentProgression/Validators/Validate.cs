@@ -106,9 +106,12 @@ namespace NCS.DSS.EmploymentProgression.Validators
                 }
                 else
                 {
-                    if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                    if (_employmentProgressionResource.EmploymentHours.HasValue)
                     {
-                        _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
+                        if (!Enum.IsDefined(typeof(EmploymentHours), _employmentProgressionResource.EmploymentHours))
+                        {
+                            _results.Add(new ValidationResult("EmploymentHours must be a valid employment hours.", new[] { "EmploymentHours" }));
+                        }
                     }
                 }
             }
