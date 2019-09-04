@@ -67,8 +67,8 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
                 return;
             }
 
-            employmentProgressionRequest.Longitude = position.Lon;
-            employmentProgressionRequest.Latitude = position.Lat;
+            employmentProgressionRequest.Longitude = (decimal) position.Lon;
+            employmentProgressionRequest.Latitude = (decimal) position.Lat;
         }
     }
 }

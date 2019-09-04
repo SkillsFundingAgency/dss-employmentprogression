@@ -14,8 +14,8 @@ namespace NCS.DSS.EmploymentProgression.Models
         string EmployerName { get; set; }
         string EmployerAddress { get; set; }
         string EmployerPostcode { get; set; }
-        double? Latitude { get; set; }
-        double? Longitude { get; set; }
+        decimal? Latitude { get; set; }
+        decimal? Longitude { get; set; }
         EmploymentHours? EmploymentHours { get; set; }
         DateTime? DateOfEmployment { get; set; }
         DateTime? DateOfLastEmployment { get; set; }

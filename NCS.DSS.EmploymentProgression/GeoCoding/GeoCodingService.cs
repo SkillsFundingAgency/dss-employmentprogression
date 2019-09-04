@@ -6,7 +6,6 @@ namespace NCS.DSS.EmployeeProgression.GeoCoding
 {
     public class GeoCodingService : IGeoCodingService
     {
-
         private readonly IAzureMapService _azureMapService;
 
         public GeoCodingService(IAzureMapService azureMapService)

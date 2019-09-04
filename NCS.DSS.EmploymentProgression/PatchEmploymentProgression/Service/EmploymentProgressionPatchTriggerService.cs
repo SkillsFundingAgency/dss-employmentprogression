@@ -141,8 +141,8 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                 return;
             }
 
-            employmentProgressionPatchRequest.Longitude = position.Lon;
-            employmentProgressionPatchRequest.Latitude = position.Lat;
+            employmentProgressionPatchRequest.Longitude = (decimal)position.Lon;
+            employmentProgressionPatchRequest.Latitude = (decimal)position.Lat;
         }
     }
 }

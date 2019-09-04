@@ -63,13 +63,13 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Display(Description = "Geocoded address information")]
         [Example(Description = "52.40100")]
         [JsonIgnoreOnSerialize]
-        public double? Latitude { get; set; }
+        public decimal? Latitude { get; set; }
 
         [RegularExpression(@"^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$")]
         [Display(Description = "Geocoded address information")]
         [Example(Description = "-1.50812")]
         [JsonIgnoreOnSerialize]
-        public double? Longitude { get; set; }
+        public decimal? Longitude { get; set; }
 
         [Display(Description = "Employment Hours.")]
         [Example(Description = "2")]

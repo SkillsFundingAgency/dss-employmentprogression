@@ -150,6 +150,16 @@ namespace NCS.DSS.EmploymentProgression.Validators
                         }
                     }
                 }
+                else
+                {
+                    if (_employmentProgressionResource.DateOfEmployment.HasValue)
+                    {
+                        if (_employmentProgressionResource.DateOfEmployment.Value > DateTime.UtcNow)
+                        {
+                            _results.Add(new ValidationResult("DateOfEmployment must be less than or equal to now.", new[] { "DateOfEmployment" }));
+                        }
+                    }
+                }
             }
             else
             {

@@ -55,12 +55,12 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Display(Description = "Latitude of the employer")]
         [Example(Description = "38.8951")]
         [JsonIgnoreOnSerialize]
-        public double? Latitude { get; set; }
+        public decimal? Latitude { get; set; }
 
         [Display(Description = "Longitude of the employer")]
         [Example(Description = "-77.0364")]
         [JsonIgnoreOnSerialize]
-        public double? Longitude { get; set; }
+        public decimal? Longitude { get; set; }
 
         [Display(Description = "Employment hours.")]
         [Example(Description = "2")]
