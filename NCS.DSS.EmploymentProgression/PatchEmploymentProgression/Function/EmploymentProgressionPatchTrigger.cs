@@ -157,6 +157,24 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.NoContent(employmentProgressionGuid);
             }
 
+            if (!string.IsNullOrEmpty(employmentProgressionPatchRequest.EmployerPostcode))
+            {
+                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Attempting to get long and lat for postcode");
+                Position position;
+
+                try
+                {
+                    var employerPostcode = employmentProgressionPatchRequest.EmployerPostcode.Replace(" ", string.Empty);
+                    position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
+                    _employmentProgressionPatchTriggerService.SetLongitudeAndLatitude(employmentProgressionPatchRequest, position);
+                }
+                catch (Exception e)
+                {
+                    _loggerHelper.LogException(logger, correlationGuid, string.Format("Unable to get long and lat for postcode: {0}", employmentProgressionPatchRequest.EmployerPostcode), e);
+                    throw;
+                }
+            }
+
             var patchedEmploymentProgressionAsJson = _employmentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatchRequest);
             if (patchedEmploymentProgressionAsJson == null)
             {
@@ -188,26 +206,6 @@ namespace NCS.DSS.EmploymentProgression.Function
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"validation errors with resource customerId {customerGuid}.");
                 return _httpResponseMessageHelper.UnprocessableEntity(errors);
             }
-
-            if (!string.IsNullOrEmpty(employmentProgressionPatchRequest.EmployerPostcode))
-            {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Attempting to get long and lat for postcode");
-                Position position;
-
-                try
-                {
-                    var employerPostcode = employmentProgressionPatchRequest.EmployerPostcode.Replace(" ", string.Empty);
-                    position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
-                    _employmentProgressionPatchTriggerService.SetLongitudeAndLatitude(employmentProgressionPatchRequest, position);
-                }
-                catch (Exception e)
-                {
-                    _loggerHelper.LogException(logger, correlationGuid, string.Format("Unable to get long and lat for postcode: {0}", employmentProgressionPatchRequest.EmployerPostcode), e);
-                    throw;
-                }
-            }
-
-
 
             var updatedEmploymentProgression = await _employmentProgressionPatchTriggerService.UpdateCosmosAsync(patchedEmploymentProgressionAsJson, employmentProgressionGuid);
             if (updatedEmploymentProgression != null)

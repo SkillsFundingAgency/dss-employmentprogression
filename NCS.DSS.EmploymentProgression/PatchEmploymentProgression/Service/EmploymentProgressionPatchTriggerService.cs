@@ -58,6 +58,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                 if (!string.IsNullOrEmpty(employmentProgressionPatch.EmployerPostcode))
                 {
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["EmployerPostcode"], employmentProgressionPatch.EmployerPostcode);
+
                     if (employmentProgressionPatch.Latitude.HasValue)
                         _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["Latitude"], employmentProgressionPatch.Latitude);
 
