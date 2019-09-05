@@ -189,8 +189,6 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
-
-
             if (!string.IsNullOrEmpty(employmentProgressionPatchRequest.EmployerPostcode))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, "Attempting to get long and lat for postcode");
@@ -200,15 +198,13 @@ namespace NCS.DSS.EmploymentProgression.Function
                 {
                     var employerPostcode = employmentProgressionPatchRequest.EmployerPostcode.Replace(" ", string.Empty);
                     position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
-
+                    _employmentProgressionPatchTriggerService.SetLongitudeAndLatitude(employmentProgressionPatchRequest, position);
                 }
                 catch (Exception e)
                 {
                     _loggerHelper.LogException(logger, correlationGuid, string.Format("Unable to get long and lat for postcode: {0}", employmentProgressionPatchRequest.EmployerPostcode), e);
                     throw;
                 }
-
-                _employmentProgressionPatchTriggerService.SetLongitudeAndLatitude(employmentProgressionPatchRequest, position);
             }
 
 

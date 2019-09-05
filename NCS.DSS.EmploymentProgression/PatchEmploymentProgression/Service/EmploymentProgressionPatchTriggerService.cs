@@ -56,7 +56,14 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["EmployerAddress"], employmentProgressionPatch.EmployerAddress);
 
                 if (!string.IsNullOrEmpty(employmentProgressionPatch.EmployerPostcode))
+                {
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["EmployerPostcode"], employmentProgressionPatch.EmployerPostcode);
+                    if (employmentProgressionPatch.Latitude.HasValue)
+                        _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["Latitude"], employmentProgressionPatch.Latitude);
+
+                    if (employmentProgressionPatch.Longitude.HasValue)
+                        _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["Longitude"], employmentProgressionPatch.Longitude);
+                }
 
                 if (employmentProgressionPatch.Latitude.HasValue)
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["Latitude"], employmentProgressionPatch.Latitude);
@@ -78,6 +85,9 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
 
                 if (!string.IsNullOrEmpty(employmentProgressionPatch.LastModifiedTouchpointId))
                     _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["LastModifiedTouchpointId"], employmentProgressionPatch.LastModifiedTouchpointId);
+
+                if (employmentProgressionPatch.EmploymentHours.HasValue)
+                    _jsonHelper.UpdatePropertyValue(employmentProgressionAsJsonObject["EmploymentHours"], employmentProgressionPatch.EmploymentHours);
 
                 return employmentProgressionAsJsonObject.ToString();
             }
