@@ -12,9 +12,8 @@ using NCS.DSS.EmploymentProgression.Validators;
 using System;
 using NCS.DSS.EmployeeProgression.GeoCoding;
 using DFC.GeoCoding.Standard.AzureMaps.Service;
+using DFC.Common.Standard.GuidHelper;
 
-
-// todo make this file into a nuget package / or add to an exiting nuget package under its own namespace
 namespace NCS.DSS.EmploymentProgression
 {
     public static class TriggerExtensions
@@ -39,6 +38,8 @@ namespace NCS.DSS.EmploymentProgression
             services.AddSingleton<IResourceHelper, ResourceHelper>();
             services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
             services.AddSingleton<ILoggerHelper, LoggerHelper>();
+
+            services.AddTransient<IGuidHelper, GuidHelper>();
 
             return services;
         }

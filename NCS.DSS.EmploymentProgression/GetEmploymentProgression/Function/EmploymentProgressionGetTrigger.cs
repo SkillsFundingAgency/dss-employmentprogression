@@ -28,6 +28,7 @@ namespace NCS.DSS.EmploymentProgression
         private readonly IJsonHelper _jsonHelper;
         private readonly IResourceHelper _resourceHelper;
         private readonly ILoggerHelper _loggerHelper;
+        private readonly IGuidHelper _guidHelper;
 
         public EmploymentProgressionGetTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -35,7 +36,8 @@ namespace NCS.DSS.EmploymentProgression
             IEmploymentProgressionGetTriggerService EmploymentProgressionsGetTriggerService,
             IJsonHelper jsonHelper,
             IResourceHelper resourceHelper,
-            ILoggerHelper loggerHelper
+            ILoggerHelper loggerHelper,
+            IGuidHelper guidHelper
             )
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
@@ -44,6 +46,7 @@ namespace NCS.DSS.EmploymentProgression
             _jsonHelper = jsonHelper;
             _resourceHelper = resourceHelper;
             _loggerHelper = loggerHelper;
+            _guidHelper = guidHelper;
         }
 
         [FunctionName(FunctionName)]
@@ -62,9 +65,7 @@ namespace NCS.DSS.EmploymentProgression
             _loggerHelper.LogMethodEnter(logger);
      
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
-            var guidHelper = new GuidHelper();
-            var correlationGuid = guidHelper.ValidateGuid(correlationId);
+            var correlationGuid = _guidHelper.ValidateAndGetGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))

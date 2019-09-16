@@ -9,6 +9,7 @@ using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Http;
 using System;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
+using DFC.Common.Standard.GuidHelper;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 {
@@ -24,6 +25,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
+            var GuidHelper = new GuidHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
@@ -33,7 +35,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 EmploymentProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                LoggerHelper
+                LoggerHelper,
+                GuidHelper
                 );
 
             // Act
@@ -55,6 +58,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
+            var GuidHelper = new GuidHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
@@ -65,7 +69,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 EmploymentProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                LoggerHelper
+                LoggerHelper,
+                GuidHelper
                 );
 
             // Act
@@ -88,6 +93,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
+            var GuidHelper = new GuidHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             var LoggerHelper = Substitute.For<ILoggerHelper>();
 
@@ -98,7 +104,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 EmploymentProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                LoggerHelper
+                LoggerHelper,
+                GuidHelper
                 );
 
             // Act
@@ -121,6 +128,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
+            var GuidHelper = new GuidHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(false);
 
@@ -132,7 +140,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 EmploymentProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                LoggerHelper
+                LoggerHelper,
+                GuidHelper
                 );
 
             // Act
@@ -155,6 +164,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
 
             var JsonHelper = new JsonHelper();
+            var GuidHelper = new GuidHelper();
             var ResourceHelper = Substitute.For<IResourceHelper>();
             ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
 
@@ -166,7 +176,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 EmploymentProgressionGetByIdService,
                 JsonHelper,
                 ResourceHelper,
-                LoggerHelper
+                LoggerHelper,
+                GuidHelper
                 );
 
             // Act

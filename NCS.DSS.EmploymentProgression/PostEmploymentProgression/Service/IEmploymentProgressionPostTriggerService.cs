@@ -12,5 +12,6 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
         bool DoesEmploymentProgressionExistForCustomer(Guid customerId);
         void SetIds(Models.EmploymentProgression employmentProgression, Guid customerGuid, string touchpointId);
         void SetLongitudeAndLatitude(Models.EmploymentProgression employmentProgressionRequest, Position position);
+        void SetDefaults(Models.EmploymentProgression employmentProgression, string touchpointId);
     }
 }

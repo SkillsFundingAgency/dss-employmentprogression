@@ -14,6 +14,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
         bool DoesEmploymentProgressionExistForCustomer(Guid customerId);
         Task<bool> DoesCustomerExist(Guid customerId);
         void SetIds(EmploymentProgressionPatch employmentProgressionPatch, Guid employmentProgressionGuid, string touchpointId);
+        void SetDefaults(EmploymentProgressionPatch employmentProgressionPatch);
         void SetLongitudeAndLatitude(EmploymentProgressionPatch employmentProgressionPatchRequest, Position position);
     }
 }

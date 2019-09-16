@@ -35,6 +35,7 @@ namespace NCS.DSS.EmploymentProgression
         private readonly ILoggerHelper _loggerHelper;
         private readonly IValidate _validate;
         private readonly IGeoCodingService _geoCodingService;
+        private readonly IGuidHelper _guidHelper;
 
         public EmploymentProgressionPostTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -44,7 +45,8 @@ namespace NCS.DSS.EmploymentProgression
             IResourceHelper resourceHelper,
             IValidate validate,
             ILoggerHelper loggerHelper,
-            IGeoCodingService geoCodingService
+            IGeoCodingService geoCodingService,
+            IGuidHelper guidHelper
             )
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
@@ -55,8 +57,9 @@ namespace NCS.DSS.EmploymentProgression
             _validate = validate;
             _loggerHelper = loggerHelper;
             _geoCodingService = geoCodingService;
+            _guidHelper = guidHelper;
         }
-        
+
         [FunctionName(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Employment progression created.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
@@ -71,14 +74,13 @@ namespace NCS.DSS.EmploymentProgression
                                               "<br><b>EmploymentHours:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item must be a valid EmploymentHours reference data item<br>" +
                                               "<br><b>DateOfEmployment:</b> If CurrentEmployment status = 1, 4, 5, 8, 9 then the item is mandatory, ISO8601:2004 <= datetime.now <br>"
                                                 )]
-           public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RouteValue)]HttpRequest req, ILogger logger, string customerId)
         {
             _loggerHelper.LogMethodEnter(logger);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
-            var guidHelper = new GuidHelper();
-            var correlationGuid = guidHelper.ValidateGuid(correlationId);
+            var correlationGuid = _guidHelper.ValidateAndGetGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -94,11 +96,13 @@ namespace NCS.DSS.EmploymentProgression
                 return _httpResponseMessageHelper.BadRequest();
             }
 
-            if (!Guid.TryParse(customerId, out var customerGuid))
+            if (!_guidHelper.IsValidGuid(customerId))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                return _httpResponseMessageHelper.BadRequest(customerId);
             }
+
+            var customerGuid = _guidHelper.ValidateAndGetGuid(customerId);
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
@@ -132,7 +136,7 @@ namespace NCS.DSS.EmploymentProgression
             {
                 _loggerHelper.LogException(logger, correlationGuid, "Unable to retrieve body from req", ex);
                 return _httpResponseMessageHelper.UnprocessableEntity(JObject.FromObject(new { Error = ex.Message }).ToString());
-            }      
+            }
 
             if (employmentProgressionRequest == null)
             {
@@ -140,6 +144,7 @@ namespace NCS.DSS.EmploymentProgression
             }
 
             _employmentProgressionPostTriggerService.SetIds(employmentProgressionRequest, customerGuid, touchpointId);
+            _employmentProgressionPostTriggerService.SetDefaults(employmentProgressionRequest, touchpointId);
 
             var errors = _validate.ValidateResource(employmentProgressionRequest);
 

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using NCS.DSS.EmploymentProgression;
 using NCS.DSS.EmploymentProgression.Ioc;
 
 [assembly: FunctionsStartup(typeof(Startup))]

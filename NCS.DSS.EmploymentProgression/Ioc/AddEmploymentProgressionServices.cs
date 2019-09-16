@@ -4,7 +4,7 @@ using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 
-namespace NCS.DSS.EmploymentProgression
+namespace NCS.DSS.EmploymentProgression.Ioc
 {
     public static class AddEmploymentProgressionServices
     {

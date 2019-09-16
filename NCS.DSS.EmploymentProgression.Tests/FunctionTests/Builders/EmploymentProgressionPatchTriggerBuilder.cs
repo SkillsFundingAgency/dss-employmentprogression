@@ -13,6 +13,7 @@ using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
 using DFC.JSON.Standard;
 using System;
 using Newtonsoft.Json;
+using DFC.Common.Standard.GuidHelper;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
 {
@@ -22,6 +23,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         public ILoggerHelper LoggerHelper { get; set; }
         public IGeoCodingService GeoService { get; set; }
         public JsonHelper JsonHelper { get; set; }
+        public GuidHelper GuidHelper { get; set; }
         public HttpResponseMessageHelper ResponseMessageHelper { get; set; }
         public IHttpRequestHelper RequestHelper { get; set; }
         public IEmploymentProgressionPatchTriggerService EmploymentProgressionPatchTriggerService { get; set; }
@@ -33,6 +35,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
             LoggerHelper = Substitute.For<ILoggerHelper>();
             GeoService = Substitute.For<IGeoCodingService>();
             JsonHelper = new JsonHelper();
+            GuidHelper = new GuidHelper();
             ResponseMessageHelper = new HttpResponseMessageHelper();
 
             RequestHelper = Substitute.For<IHttpRequestHelper>();
@@ -45,7 +48,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         public EmploymentProgressionPatchTrigger Build()
         {
             return new EmploymentProgressionPatchTrigger(ResponseMessageHelper, RequestHelper, EmploymentProgressionPatchTriggerService,
-                    JsonHelper, ResourceHelper, Valdiator, LoggerHelper, GeoService);
+                    JsonHelper, ResourceHelper, Valdiator, LoggerHelper, GeoService, GuidHelper);
         }
 
         public EmploymentProgressionPatchTriggerBuilder WithTouchPointId(string touchpointId)

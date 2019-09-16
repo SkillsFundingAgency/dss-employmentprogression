@@ -52,6 +52,10 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             employmentProgression.EmploymentProgressionId = Guid.NewGuid();
             employmentProgression.CustomerId = customerGuid;
             employmentProgression.LastModifiedTouchpointId = touchpointId;
+        }
+
+        public void SetDefaults(Models.EmploymentProgression employmentProgression, string touchpointId)
+        {
             employmentProgression.CreatedBy = touchpointId;
 
             if (!employmentProgression.DateProgressionRecorded.HasValue)
@@ -67,8 +71,8 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
                 return;
             }
 
-            employmentProgressionRequest.Longitude = (decimal) position.Lon;
-            employmentProgressionRequest.Latitude = (decimal) position.Lat;
+            employmentProgressionRequest.Longitude = (decimal)position.Lon;
+            employmentProgressionRequest.Latitude = (decimal)position.Lat;
         }
     }
 }

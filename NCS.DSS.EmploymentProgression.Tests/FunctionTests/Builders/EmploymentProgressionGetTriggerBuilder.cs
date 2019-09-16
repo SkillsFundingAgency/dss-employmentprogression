@@ -9,6 +9,7 @@ using System;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Models;
 using System.Collections.Generic;
+using DFC.Common.Standard.GuidHelper;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
 {
@@ -18,6 +19,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         public ILoggerHelper LoggerHelper { get; set; }
         public IGeoCodingService GeoService { get; set; }
         public JsonHelper JsonHelper { get; set; }
+        public GuidHelper  GuidHelper { get; set; }
         public HttpResponseMessageHelper ResponseMessageHelper { get; set; }
         public IHttpRequestHelper RequestHelper { get; set; }
         public IEmploymentProgressionGetTriggerService EmploymentProgressionGetTriggerService { get; set; }
@@ -28,6 +30,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
             LoggerHelper = Substitute.For<ILoggerHelper>();
             GeoService = Substitute.For<IGeoCodingService>();
             JsonHelper = new JsonHelper();
+            GuidHelper = new GuidHelper();
             ResponseMessageHelper = new HttpResponseMessageHelper();
 
             RequestHelper = Substitute.For<IHttpRequestHelper>();
@@ -39,7 +42,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         public EmploymentProgressionGetTrigger Build()
         {
             return new EmploymentProgressionGetTrigger(ResponseMessageHelper, RequestHelper, EmploymentProgressionGetTriggerService,
-                    JsonHelper, ResourceHelper, LoggerHelper);
+                    JsonHelper, ResourceHelper, LoggerHelper, GuidHelper);
         }
 
         public EmploymentProgressionGetTriggerBuilder WithTouchPointId(string touchpointId)

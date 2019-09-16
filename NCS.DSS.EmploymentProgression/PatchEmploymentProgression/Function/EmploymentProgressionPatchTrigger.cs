@@ -38,6 +38,7 @@ namespace NCS.DSS.EmploymentProgression.Function
         private readonly IValidate _validate;
         private readonly ILoggerHelper _loggerHelper;
         private readonly IGeoCodingService _geoCodingService;
+        private readonly IGuidHelper _guidHelper;
 
         public EmploymentProgressionPatchTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -47,7 +48,8 @@ namespace NCS.DSS.EmploymentProgression.Function
             IResourceHelper resourceHelper,
             IValidate validate,
             ILoggerHelper loggerHelper,
-            IGeoCodingService geoCodingService
+            IGeoCodingService geoCodingService,
+            IGuidHelper guidHelper
             )
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
@@ -58,6 +60,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             _validate = validate;
             _loggerHelper = loggerHelper;
             _geoCodingService = geoCodingService;
+            _guidHelper = guidHelper;
         }
 
         [FunctionName(FunctionName)]
@@ -80,9 +83,7 @@ namespace NCS.DSS.EmploymentProgression.Function
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
 
-            var guidHelper = new GuidHelper();
-
-            var correlationGuid = guidHelper.ValidateGuid(correlationId);
+            var correlationGuid = _guidHelper.ValidateAndGetGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -99,18 +100,20 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return _httpResponseMessageHelper.BadRequest();
             }
 
-            if (!Guid.TryParse(customerId, out var customerGuid))
+            if (!_guidHelper.IsValidGuid(customerId))
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                return _httpResponseMessageHelper.BadRequest(customerId);
             }
+            var customerGuid = _guidHelper.ValidateAndGetGuid(customerId);
 
-            if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
+            if (!_guidHelper.IsValidGuid(EmploymentProgressionId))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'employmentProgressionId' to a Guid: {employmentProgressionGuid}");
-                return _httpResponseMessageHelper.BadRequest(employmentProgressionGuid);
+                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'employmentProgressionId' to a Guid: {EmploymentProgressionId}");
+                return _httpResponseMessageHelper.BadRequest(EmploymentProgressionId);
             }
 
+            var employmentProgressionGuid = _guidHelper.ValidateAndGetGuid(EmploymentProgressionId);
             EmploymentProgressionPatch employmentProgressionPatchRequest;
 
             try
@@ -130,6 +133,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
 
             _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatchRequest, employmentProgressionGuid, touchpointId);
+            _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);
 
             if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
             {
