@@ -39,6 +39,7 @@ namespace NCS.DSS.EmploymentProgression.Function
         private readonly ILoggerHelper _loggerHelper;
         private readonly IGeoCodingService _geoCodingService;
         private readonly IGuidHelper _guidHelper;
+        private readonly IEmploymentProgressionPatchService _employmentProgressionPatchService;
 
         public EmploymentProgressionPatchTrigger(
             IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -49,7 +50,8 @@ namespace NCS.DSS.EmploymentProgression.Function
             IValidate validate,
             ILoggerHelper loggerHelper,
             IGeoCodingService geoCodingService,
-            IGuidHelper guidHelper
+            IGuidHelper guidHelper,
+            IEmploymentProgressionPatchService employmentProgressionPatchService
             )
         {
             _httpResponseMessageHelper = httpResponseMessageHelper;
@@ -61,6 +63,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             _loggerHelper = loggerHelper;
             _geoCodingService = geoCodingService;
             _guidHelper = guidHelper;
+            _employmentProgressionPatchService = employmentProgressionPatchService;
         }
 
         [FunctionName(FunctionName)]
@@ -179,7 +182,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                 }
             }
 
-            var patchedEmploymentProgressionAsJson = _employmentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatchRequest);
+            var patchedEmploymentProgressionAsJson = _employmentProgressionPatchService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatchRequest);
             if (patchedEmploymentProgressionAsJson == null)
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Employment progression does not exist for {employmentProgressionGuid}.");

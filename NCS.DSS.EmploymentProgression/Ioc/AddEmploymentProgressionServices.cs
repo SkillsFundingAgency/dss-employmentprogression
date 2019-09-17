@@ -14,6 +14,7 @@ namespace NCS.DSS.EmploymentProgression.Ioc
             services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
             services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
             services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
+            services.AddTransient<IEmploymentProgressionPatchService, EmploymentProgressionPatchService>();
 
             return services;
         }

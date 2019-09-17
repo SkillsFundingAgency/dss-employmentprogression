@@ -23,9 +23,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         public ILoggerHelper LoggerHelper { get; set; }
         public IGeoCodingService GeoService { get; set; }
         public JsonHelper JsonHelper { get; set; }
-        public GuidHelper GuidHelper { get; set; }
+        public GuidHelper GuidHelper { get; set; }        
         public HttpResponseMessageHelper ResponseMessageHelper { get; set; }
         public IHttpRequestHelper RequestHelper { get; set; }
+        public IEmploymentProgressionPatchService EmploymentProgressionPatchService { get; set; }
         public IEmploymentProgressionPatchTriggerService EmploymentProgressionPatchTriggerService { get; set; }
         public IResourceHelper ResourceHelper { get; set; }
         public IValidate Valdiator { get; set; }
@@ -40,6 +41,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
 
             RequestHelper = Substitute.For<IHttpRequestHelper>();
             EmploymentProgressionPatch = new EmploymentProgressionPatch();
+            EmploymentProgressionPatchService = Substitute.For<IEmploymentProgressionPatchService>();
             EmploymentProgressionPatchTriggerService = Substitute.For<IEmploymentProgressionPatchTriggerService>();
             ResourceHelper = Substitute.For<IResourceHelper>();
             Valdiator = Substitute.For<IValidate>();
@@ -48,7 +50,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         public EmploymentProgressionPatchTrigger Build()
         {
             return new EmploymentProgressionPatchTrigger(ResponseMessageHelper, RequestHelper, EmploymentProgressionPatchTriggerService,
-                    JsonHelper, ResourceHelper, Valdiator, LoggerHelper, GeoService, GuidHelper);
+                    JsonHelper, ResourceHelper, Valdiator, LoggerHelper, GeoService, GuidHelper, EmploymentProgressionPatchService);
         }
 
         public EmploymentProgressionPatchTriggerBuilder WithTouchPointId(string touchpointId)
@@ -73,11 +75,11 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests.Builders
         {
             if (employmentProgressionPatch == null)
             {
-                EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns((string)null);
+                EmploymentProgressionPatchService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns((string)null);
             }
             else
             {
-                EmploymentProgressionPatchTriggerService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns(JsonConvert.SerializeObject(employmentProgressionPatch));
+                EmploymentProgressionPatchService.PatchEmploymentProgressionAsync(Arg.Any<string>(), Arg.Any<EmploymentProgressionPatch>()).Returns(JsonConvert.SerializeObject(employmentProgressionPatch));
             }
 
             return this;
