@@ -39,7 +39,7 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
                 ContentType = "application/json",
                 MessageId = $"{employmentProgression.CustomerId} {DateTime.UtcNow}"
             };
-
+            //Messages now logged to appinsights
             _loggerHelper.LogInformationObject(log, correlationId, string.Format("New Employment Progression record {0}", employmentProgression.EmploymentProgressionId), messageModel);
 
             await _queueClient.SendAsync(msg);
