@@ -219,7 +219,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             {
                 _loggerHelper.LogInformationMessage(logger, correlationGuid, $"attempting to send to service bus {employmentProgressionGuid}.");
 
-                await _employmentProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedEmploymentProgression, ApimURL);
+                await _employmentProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedEmploymentProgression, customerGuid, ApimURL, correlationGuid, logger);
             }
 
             _loggerHelper.LogMethodExit(logger);

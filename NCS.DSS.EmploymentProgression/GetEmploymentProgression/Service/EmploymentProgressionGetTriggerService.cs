@@ -21,10 +21,5 @@ namespace NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service
         {
             return await _documentDbProvider.GetEmploymentProgressionsForCustomerAsync(customerId);
         }
-
-        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl)
-        {
-            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl);
-        }
     }
 }

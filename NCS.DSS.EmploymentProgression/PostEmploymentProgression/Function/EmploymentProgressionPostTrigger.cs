@@ -180,7 +180,7 @@ namespace NCS.DSS.EmploymentProgression
             }
 
             _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Sending newly created Employment Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
-            await _employmentProgressionPostTriggerService.SendToServiceBusQueueAsync(employmentProgressionRequest, ApimURL);
+            await _employmentProgressionPostTriggerService.SendToServiceBusQueueAsync(employmentProgressionRequest, ApimURL, correlationGuid, logger);
 
             _loggerHelper.LogMethodExit(logger);
 
