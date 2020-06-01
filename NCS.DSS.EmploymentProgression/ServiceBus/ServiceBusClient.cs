@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using NCS.DSS.EmploymentProgression.Models;
 using Microsoft.Azure.ServiceBus;
 using NCS.DSS.employmentProgression.ServiceBus;
+using DFC.Common.Standard.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace NCS.DSS.EmploymentProgression.ServiceBus
 {
@@ -12,6 +14,7 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
     {
         private readonly ConfigurationSettings _employmentProgressionConfigurationSettings;
         private readonly QueueClient _queueClient;
+        private readonly ILoggerHelper _loggerHelper = new LoggerHelper();
 
         public ServiceBusClient(ConfigurationSettings EmploymentProgressionConfigurationSettings)
         {
@@ -19,7 +22,7 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
             _queueClient = new QueueClient(_employmentProgressionConfigurationSettings.ServiceBusConnectionString, _employmentProgressionConfigurationSettings.QueueName);
         }
 
-        public async Task SendPostMessageAsync(Models.EmploymentProgression employmentProgression, string reqUrl)
+        public async Task SendPostMessageAsync(Models.EmploymentProgression employmentProgression, string reqUrl, Guid correlationId, ILogger log)
         {
             var messageModel = new MessageModel()
             {
@@ -36,11 +39,13 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
                 ContentType = "application/json",
                 MessageId = $"{employmentProgression.CustomerId} {DateTime.UtcNow}"
             };
+            //Messages now logged to appinsights
+            _loggerHelper.LogInformationObject(log, correlationId, string.Format("New Employment Progression record {0}", employmentProgression.EmploymentProgressionId), messageModel);
 
             await _queueClient.SendAsync(msg);
         }
 
-        public async Task SendPatchMessageAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl)
+        public async Task SendPatchMessageAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
         {
             var messageModel = new MessageModel
             {
@@ -58,6 +63,7 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
                 MessageId = $"{customerId} {DateTime.UtcNow}"
             };
 
+            _loggerHelper.LogInformationObject(log, correlationId, $"Employment Progression record modification for {{{customerId}}} at {DateTime.UtcNow}", messageModel);
             await _queueClient.SendAsync(msg);
         }
     }

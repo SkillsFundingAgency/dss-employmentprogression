@@ -1,4 +1,5 @@
 ﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Models;
 using System;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
     {
         Task<Models.EmploymentProgression> UpdateCosmosAsync(string employmentProgressionAsJson, Guid employmentProgressionId);
         Task<string> GetEmploymentProgressionForCustomerToPatchAsync(Guid customerId, Guid employmentProgressionId);
-        Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl);
+        Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log);
         bool DoesEmploymentProgressionExistForCustomer(Guid customerId);
         Task<bool> DoesCustomerExist(Guid customerId);
         void SetIds(EmploymentProgressionPatch employmentProgressionPatch, Guid employmentProgressionGuid, string touchpointId);

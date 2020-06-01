@@ -27,10 +27,10 @@
             "value": "dss-content"
         },
         "sharedAppServicePlanName": {
-            "value": "dss-foo-shared-asp"
+            "value": "dfc-test-template-asp"
         },
         "sharedAppServicePlanResourceGroup": {
-            "value": "dss-foo-shared-rg"
+            "value": "dfc-test-template-rg"
         },
         "storageAccountName": {
             "value": "dssfooshdarmstr"

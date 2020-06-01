@@ -1,4 +1,5 @@
 ﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.ServiceBus;
 using System;
@@ -37,9 +38,9 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl)
+        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl, Guid correlationId, ILogger log)
         {
-            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl);
+            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl, correlationId, log);
         }
 
         public bool DoesEmploymentProgressionExistForCustomer(Guid customerId)
