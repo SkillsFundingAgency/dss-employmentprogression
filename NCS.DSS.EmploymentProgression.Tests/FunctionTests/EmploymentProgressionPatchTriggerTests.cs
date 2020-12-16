@@ -53,7 +53,6 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         };
 
 
-
         [SetUp]
         public void Setup()
         {

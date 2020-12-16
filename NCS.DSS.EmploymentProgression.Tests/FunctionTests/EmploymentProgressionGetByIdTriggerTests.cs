@@ -121,8 +121,6 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
             //Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-
-
         }
 
         private async Task<HttpResponseMessage> RunFunction(string customerId, string employmentProgressionId)

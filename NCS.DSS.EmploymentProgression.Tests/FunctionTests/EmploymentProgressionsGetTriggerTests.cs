@@ -47,7 +47,6 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _logger = new Mock<ILogger>();
             _function = new EmploymentProgressionGetTrigger(_httpResponseHelper, _httpRequestHelper.Object, _employmentTriggerService.Object, _jsonHelper, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
             _request = new DefaultHttpRequest(new DefaultHttpContext());
-
         }
 
         [Test]
@@ -138,5 +137,4 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             return await _function.Run(_request, _logger.Object, customerId).ConfigureAwait(false);
         }
     }
-
 }

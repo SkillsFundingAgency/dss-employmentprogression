@@ -116,115 +116,79 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        //[Test]
-        //public async Task Post_InvalidBody_ReturnUnprocessableEntity()
-        //{
-        //    // arrange
-        //    var builder = new EmploymentProgressionPostTriggerBuilder();
-        //    var employmentProgressionPostTrigger = builder
-        //        .WithTouchPointId("0000000001")
-        //        .WithDssApimUrl("http://www.google.com")
-        //        .WithResourceFromRequestGenerateException()
-        //        .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
-        //        .WithValidation(ValidationResultNoErrors)
-        //        .WithCustomerExist(true)
-        //        .WithCustomerReadOnly(false)
-        //        .Build();
+        [Test]
+        public async Task Post_InvalidBody_ReturnUnprocessableEntity()
+        {
+            // arrange
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
+            _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Throws(new Exception());
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
+            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));
 
-        //    // Act
-        //    var response = await RunFunction(ValidCustomerId);
+            // Act
+            var response = await RunFunction(ValidCustomerId);
 
-        //    //Assert
-        //    Assert.AreEqual(HttpStatusCode.UnprocessableEntity, response.StatusCode);
-        //}
+            //Assert
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        }
 
-        //[Test]
-        //public async Task Post_ReadOnlyCustomer_ReturnBadRequest()
-        //{
-        //    // arrange
-        //    var builder = new EmploymentProgressionPostTriggerBuilder();
-        //    var employmentProgressionPostTrigger = builder
-        //        .WithTouchPointId("0000000001")
-        //        .WithDssApimUrl("http://www.google.com")
-        //        .WithResourceFromRequest(ValidEmploymentProgression)
-        //        .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
-        //        .WithEmploymentProgressionExistForCustomer(true)
-        //        .WithCustomerReadOnly(true)
-        //        .WithCustomerExist(true)
-        //        .Build();
+        [Test]
+        public async Task Post_ReadOnlyCustomer_ReturnBadRequest()
+        {
+            // arrange
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
+            _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
+            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));
 
-        //    // Act
-        //    var response = await RunFunction(ValidCustomerId);
+            // Act
+            var response = await RunFunction(ValidCustomerId);
 
-        //    //Assert
-        //    Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
-        //}
+            //Assert
+            Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
+        }
 
-        //[Test]
-        //public async Task Post_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
-        //{
-        //    // arrange
-        //    var builder = new EmploymentProgressionPostTriggerBuilder();
-        //    var employmentProgressionPostTrigger = builder
-        //        .WithTouchPointId("0000000001")
-        //        .WithDssApimUrl("http://www.google.com")
-        //        .WithResourceFromRequest(ValidEmploymentProgression)
-        //        .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
-        //        .WithEmploymentProgressionExistForCustomer(false)
-        //        .WithCustomerReadOnly(false)
-        //        .WithCustomerExist(false)
-        //        .Build();
+        [Test]
+        public async Task Post_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        {
+            // arrange
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
+            _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
+            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression)); 
 
-        //    // Act
-        //    var response = await RunFunction(ValidCustomerId);
+            // Act
+            var response = await RunFunction(ValidCustomerId);
 
-        //    //Assert
-        //    Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-        //}
+            //Assert
+            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+        }
 
-        //[Test]
-        //public async Task Post_EmploymentProgressionDoesNotExistForCustomer_ReturnBadRequest()
-        //{
-        //    // arrange
-        //    var builder = new EmploymentProgressionPostTriggerBuilder();
-        //    var employmentProgressionPostTrigger = builder
-        //        .WithTouchPointId("0000000001")
-        //        .WithDssApimUrl("http://www.google.com")
-        //        .WithResourceFromRequest(ValidEmploymentProgression)
-        //        .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
-        //        .WithEmploymentProgressionExistForCustomer(false)
-        //        .WithCustomerReadOnly(false)
-        //        .WithCustomerExist(false)
-        //        .Build();
+        [Test]
+        public async Task Post_EmploymentProgressionExistForCustomer_ReturnConflict()
+        {
+            // arrange
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
+            _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
+            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));
+            _employmentProgressionPostTriggerService.Setup(x=>x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
 
-        //    // Act
-        //    var response = await RunFunction(ValidCustomerId);
+            // Act
+            var response = await RunFunction(ValidCustomerId);
 
-        //    //Assert
-        //    Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-        //}
-
-        //[Test]
-        //public async Task Post_EmploymentProgressionExistForCustomer_ReturnConflict()
-        //{
-        //    // arrange
-        //    var builder = new EmploymentProgressionPostTriggerBuilder();
-        //    var employmentProgressionPostTrigger = builder
-        //        .WithTouchPointId("0000000001")
-        //        .WithDssApimUrl("http://www.google.com")
-        //        .WithResourceFromRequest(ValidEmploymentProgression)
-        //        .WithEmploymentProgressionCreate(InvalidEmploymentProgression)
-        //        .WithEmploymentProgressionExistForCustomer(true)
-        //        .WithCustomerReadOnly(false)
-        //        .WithCustomerExist(true)
-        //        .Build();
-
-        //    // Act
-        //    var response = await RunFunction(ValidCustomerId);
-
-        //    //Assert
-        //    Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
-        //}
+            //Assert
+            Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
+        }
 
         [Test]
         public async Task Post_GetFromResourceIsNull_ReturnUnprocessableEntityt()
