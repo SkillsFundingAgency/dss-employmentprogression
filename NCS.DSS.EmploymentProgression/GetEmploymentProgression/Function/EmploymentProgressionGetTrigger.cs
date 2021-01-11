@@ -58,7 +58,6 @@ namespace NCS.DSS.EmploymentProgression
         [Response(HttpStatusCode = (int)422, Description = "Employment progression validation error(s).", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.EmploymentProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to return all employment progression for the given customer.")]
-
         public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
             HttpRequest req, ILogger logger, string customerId)
         {
