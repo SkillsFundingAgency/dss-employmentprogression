@@ -42,11 +42,6 @@ jobs:
      filePath: $(TestBranchNameScriptFilePath)
      arguments: '-BranchName $(Build.SourceBranchName) -PullRequestBranchName $(if ("$(Build.SourceBranchName)" -eq "merge") { "$(System.PullRequest.SourceBranch)" } else { "NotAPullRequest" } ) -PipelineType Build -Verbose'
 
-- template: AzureDevOpsTemplates/Build/StepTemplates/dfc-arm-build.yml@dfc-devops
-  parameters:
-    ArmTemplateRoot: '$(System.DefaultWorkingDirectory)\Resources'
-    AzureSubscription: 'SFA-DSS-DevTest'
-
 # Build the app with the dfc-dotnetcore-build template.  Runs if the output of TestBranchName is Version2+
 - job: BuildDotNetStandard
   displayName: Build-DotNetStandard
