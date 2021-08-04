@@ -12,6 +12,7 @@ using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmployeeProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
+using NCS.DSS.EmploymentProgression.CosmosDocumentClient;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.Models;
@@ -32,6 +33,11 @@ namespace NCS.DSS.EmploymentProgression
 
         private void ConfigureServices(IServiceCollection services)
         {
+            var settings = GetConfigurationSettings();
+
+            services.AddSingleton(settings);
+            services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
+
             services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
             services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
             services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
@@ -51,10 +57,6 @@ namespace NCS.DSS.EmploymentProgression
             services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
             services.AddSingleton<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IGuidHelper, GuidHelper>();
-
-            var settings = GetConfigurationSettings();
-            services.AddSingleton(settings);
-            services.AddSingleton<CosmosDocumentClient.ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
         }
 
         private ConfigurationSettings GetConfigurationSettings()
