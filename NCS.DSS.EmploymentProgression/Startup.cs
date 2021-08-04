@@ -23,33 +23,38 @@ using System;
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace NCS.DSS.EmploymentProgression
 {
-    class Startup : FunctionsStartup
+    public class Startup : FunctionsStartup
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
-            builder.Services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
-            builder.Services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
-            builder.Services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
-            builder.Services.AddTransient<IEmploymentProgressionPatchService, EmploymentProgressionPatchService>();
+            ConfigureServices(builder.Services);
+        }
 
-            builder.Services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
-            builder.Services.AddTransient<IServiceBusClient, ServiceBusClient>();
-            builder.Services.AddTransient<IValidate, Validate>();
-            builder.Services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
-            builder.Services.AddScoped<IGeoCodingService, GeoCodingService>();
-            builder.Services.AddScoped<IAzureMapService, AzureMapService>();
+        private void ConfigureServices(IServiceCollection services)
+        {
+            services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
+            services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
+            services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
+            services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
+            services.AddTransient<IEmploymentProgressionPatchService, EmploymentProgressionPatchService>();
 
-            builder.Services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
-            builder.Services.AddSingleton<IJsonHelper, JsonHelper>();
-            builder.Services.AddSingleton<IResourceHelper, ResourceHelper>();
-            builder.Services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
-            builder.Services.AddSingleton<ILoggerHelper, LoggerHelper>();
-            builder.Services.AddTransient<IGuidHelper, GuidHelper>();
+            services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
+            services.AddTransient<IServiceBusClient, ServiceBusClient>();
+            services.AddTransient<IValidate, Validate>();
+            services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+            services.AddScoped<IGeoCodingService, GeoCodingService>();
+            services.AddScoped<IAzureMapService, AzureMapService>();
+
+            services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
+            services.AddSingleton<IJsonHelper, JsonHelper>();
+            services.AddSingleton<IResourceHelper, ResourceHelper>();
+            services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
+            services.AddSingleton<ILoggerHelper, LoggerHelper>();
+            services.AddTransient<IGuidHelper, GuidHelper>();
 
             var settings = GetConfigurationSettings();
-            builder.Services.AddSingleton(settings);
-            builder.Services.AddSingleton<CosmosDocumentClient.ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
+            services.AddSingleton(settings);
+            services.AddSingleton<CosmosDocumentClient.ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
         }
 
         private ConfigurationSettings GetConfigurationSettings()
