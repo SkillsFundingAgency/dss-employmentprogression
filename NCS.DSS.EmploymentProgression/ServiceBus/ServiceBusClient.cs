@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NCS.DSS.EmploymentProgression.Models;
 using Microsoft.Azure.ServiceBus;
-using NCS.DSS.employmentProgression.ServiceBus;
 using DFC.Common.Standard.Logging;
 using Microsoft.Extensions.Logging;
 
