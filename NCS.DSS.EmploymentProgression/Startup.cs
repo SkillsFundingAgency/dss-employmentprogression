@@ -1,7 +1,5 @@
 ﻿using DFC.Common.Standard.GuidHelper;
 using DFC.Common.Standard.Logging;
-using DFC.Common.Standard.ServiceBusCleint;
-using DFC.Common.Standard.ServiceBusClient.Interfaces;
 using DFC.GeoCoding.Standard.AzureMaps.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -19,6 +17,7 @@ using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Validators;
+using NCS.DSS.EmploymentProgression.ServiceBus;
 using System;
 
 [assembly: FunctionsStartup(typeof(Startup))]
