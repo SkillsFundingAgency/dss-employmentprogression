@@ -1,60 +1,64 @@
-﻿using DFC.Common.Standard.Logging;
+﻿using DFC.Common.Standard.GuidHelper;
+using DFC.Common.Standard.Logging;
+using DFC.GeoCoding.Standard.AzureMaps.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.EmployeeProgression.GeoCoding;
+using NCS.DSS.EmploymentProgression;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.CosmosDocumentClient;
+using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
+using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.Models;
-using NCS.DSS.EmploymentProgression.ServiceBus;
+using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
+using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Validators;
+using NCS.DSS.EmploymentProgression.ServiceBus;
 using System;
-using NCS.DSS.EmployeeProgression.GeoCoding;
-using DFC.GeoCoding.Standard.AzureMaps.Service;
-using DFC.Common.Standard.GuidHelper;
 
+[assembly: FunctionsStartup(typeof(Startup))]
 namespace NCS.DSS.EmploymentProgression
 {
-    public static class TriggerExtensions
+    public class Startup : FunctionsStartup
     {
-        public static IServiceCollection AddTriggerSupport(this IServiceCollection services)
+        public override void Configure(IFunctionsHostBuilder builder)
         {
-            services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
+            ConfigureServices(builder.Services);
+        }
 
+        private void ConfigureServices(IServiceCollection services)
+        {
+            var settings = GetConfigurationSettings();
+
+            services.AddSingleton(settings);
+            services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
+
+            services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
+            services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
+            services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
+            services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
+            services.AddTransient<IEmploymentProgressionPatchService, EmploymentProgressionPatchService>();
+
+            services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
             services.AddTransient<IServiceBusClient, ServiceBusClient>();
             services.AddTransient<IValidate, Validate>();
-
             services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
             services.AddScoped<IGeoCodingService, GeoCodingService>();
             services.AddScoped<IAzureMapService, AzureMapService>();
-            return services;
-        }
 
-        public static IServiceCollection AddTriggerHelpers(this IServiceCollection services)
-        {
             services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
             services.AddSingleton<IJsonHelper, JsonHelper>();
             services.AddSingleton<IResourceHelper, ResourceHelper>();
             services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
             services.AddSingleton<ILoggerHelper, LoggerHelper>();
-
             services.AddTransient<IGuidHelper, GuidHelper>();
-
-            return services;
         }
 
-        public static IServiceCollection AddTriggerSettings(this IServiceCollection services)
-        {
-            var settings = GetConfigurationSettings();
-            services.AddSingleton(settings);
-            services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient.CosmosDocumentClient>(x => new CosmosDocumentClient.CosmosDocumentClient(settings.CosmosDBConnectionString));
-
-
-            return services;
-        }
-
-        private static ConfigurationSettings GetConfigurationSettings()
+        private ConfigurationSettings GetConfigurationSettings()
         {
             var settings = new ConfigurationSettings
             {
@@ -70,7 +74,6 @@ namespace NCS.DSS.EmploymentProgression
                 AzureMapSubscriptionKey = Environment.GetEnvironmentVariable("AzureMapSubscriptionKey"),
                 AzureCountrySet = Environment.GetEnvironmentVariable("AzureCountrySet"),
             };
-
             return settings;
         }
     }

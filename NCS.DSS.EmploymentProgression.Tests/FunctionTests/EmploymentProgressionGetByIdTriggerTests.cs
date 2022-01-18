@@ -1,190 +1,131 @@
-﻿using System.Threading.Tasks;
-using Xunit;
-using System.Net;
-using NSubstitute;
+﻿using DFC.Common.Standard.GuidHelper;
+using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
-using NCS.DSS.Contact.Cosmos.Helper;
-using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Http;
-using System;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
-using DFC.Common.Standard.GuidHelper;
+using NUnit.Framework;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 {
     public class EmploymentProgressionGetByIdTriggerTests
     {
-        [Fact]
-        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        private EmploymentProgressionGetByIdTrigger _function;
+        private IHttpResponseMessageHelper _httpResponseHelper;
+        private Mock<IHttpRequestHelper> _httpRequestHelper;
+        private Mock<IEmploymentProgressionGetByIdTriggerService> _EmploymentProgressionGetByIdTriggerService;
+        private IJsonHelper _jsonHelper;
+        private Mock<IResourceHelper> _resourceHelper;
+        private Mock<ILoggerHelper> _loggerHelper;
+        private Mock<IGuidHelper> _guidHelper;
+        private Mock<ILogger> _logger;
+        private HttpRequest _request;
+        private Guid _validCustomerId = Guid.NewGuid();
+        private Guid _validEmploymentProgressionId = Guid.NewGuid();
+
+        [SetUp]
+        public void Setup()
         {
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
-            EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
-
-            var JsonHelper = new JsonHelper();
-            var GuidHelper = new GuidHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionGetByIdTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                LoggerHelper,
-                GuidHelper
-                );
-
-            // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "", "");
-
-            //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            _httpResponseHelper = new HttpResponseMessageHelper();
+            _httpRequestHelper = new Mock<IHttpRequestHelper>();
+            _EmploymentProgressionGetByIdTriggerService = new Mock<IEmploymentProgressionGetByIdTriggerService>();
+            _jsonHelper = new JsonHelper(); ;
+            _resourceHelper = new Mock<IResourceHelper>();
+            _loggerHelper = new Mock<ILoggerHelper>(); ;
+            _guidHelper = new Mock<IGuidHelper>();
+            _logger = new Mock<ILogger>();
+            _function = new EmploymentProgressionGetByIdTrigger(_httpResponseHelper, _httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _jsonHelper, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
+            _request = new DefaultHttpRequest(new DefaultHttpContext());
+            
         }
 
-        [Fact]
+
+        [Test]
+        public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
+        {
+            // Arrange
+            _EmploymentProgressionGetByIdTriggerService.Setup(x=>x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
+
+            // Act
+            var response = await RunFunction("", "");
+
+            //Assert
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Test]
         public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
-            EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
-
-            var JsonHelper = new JsonHelper();
-            var GuidHelper = new GuidHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-
-            var httpPostFunction = new EmploymentProgressionGetByIdTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                LoggerHelper,
-                GuidHelper
-                );
+            _httpRequestHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _EmploymentProgressionGetByIdTriggerService.Setup(x=>x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "", "");
+            var response = await RunFunction("", "");
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
+        [Test]
         public async Task Get_CustomerIdIsNotValidGuid_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
-            EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
-
-            var JsonHelper = new JsonHelper();
-            var GuidHelper = new GuidHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-
-            var httpPostFunction = new EmploymentProgressionGetByIdTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                LoggerHelper,
-                GuidHelper
-                );
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "InvalidCustomerId", "");
+            var response = await RunFunction("InvalidCustomerId", "");
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode );
         }
 
-        [Fact]
+        [Test]
         public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
-            EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
-
-            var JsonHelper = new JsonHelper();
-            var GuidHelper = new GuidHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(false);
-
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionGetByIdTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                LoggerHelper,
-                GuidHelper
-                );
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
+            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "844a6215-8413-41ba-96b0-b4cc7041ca33", "");
+            var response = await RunFunction("844a6215-8413-41ba-96b0-b4cc7041ca33", "");
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Fact]
+        [Test]
         public async Task Get_RequestContainsNoErrors_ReturnOk()
         {
             // arrange
-            var ResponseMessageHelper = new HttpResponseMessageHelper();
-            var RequestHelper = Substitute.For<IHttpRequestHelper>();
-            RequestHelper.GetDssTouchpointId(Arg.Any<HttpRequest>()).Returns("0000000001");
-            RequestHelper.GetDssApimUrl(Arg.Any<HttpRequest>()).Returns("http://aurlvalue.com");
-
-            var EmploymentProgressionGetByIdService = Substitute.For<IEmploymentProgressionGetByIdTriggerService>();
-            EmploymentProgressionGetByIdService.GetEmploymentProgressionForCustomerAsync(Arg.Any<Guid>(), Arg.Any<Guid>()).Returns(new Models.EmploymentProgression());
-
-            var JsonHelper = new JsonHelper();
-            var GuidHelper = new GuidHelper();
-            var ResourceHelper = Substitute.For<IResourceHelper>();
-            ResourceHelper.DoesCustomerExist(Arg.Any<Guid>()).Returns(true);
-
-            var LoggerHelper = Substitute.For<ILoggerHelper>();
-
-            var httpPostFunction = new EmploymentProgressionGetByIdTrigger(
-                ResponseMessageHelper,
-                RequestHelper,
-                EmploymentProgressionGetByIdService,
-                JsonHelper,
-                ResourceHelper,
-                LoggerHelper,
-                GuidHelper
-                );
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _guidHelper.Setup(x => x.IsValidGuid(It.IsAny<string>())).Returns(true);
 
             // Act
-            var response = await httpPostFunction.Run(TestFactory.CreateHttpRequest("", ""), TestFactory.CreateLogger(), "844a6215-8413-41ba-96b0-b4cc7041ca33", "844a6215-8413-41ba-96b0-b4cc7041ca33");
+            var response = await RunFunction(_validCustomerId.ToString(), _validEmploymentProgressionId.ToString());
 
             //Assert
-            Assert.True(response.StatusCode == HttpStatusCode.OK);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        private async Task<HttpResponseMessage> RunFunction(string customerId, string employmentProgressionId)
+        {
+            return await _function.Run(_request, _logger.Object,customerId, employmentProgressionId).ConfigureAwait(false);
         }
     }
 }

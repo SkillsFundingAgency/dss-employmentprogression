@@ -14,6 +14,6 @@
     }
   ],
   "disabled": false,
-  "entryPoint": "NCS.DSS.EmploymentProgression\\EmploymentProgressionsGetTrigger.Run",
-  "scriptFile": "..\\Debug\\netcoreapp2.2\\bin\\NCS.DSS.EmploymentProgression.dll"
+  "entryPoint": "NCS.DSS.EmploymentProgression\\EmploymentProgressionsPostTrigger.Run",
+  "scriptFile": "..\\bin\\NCS.DSS.EmploymentProgression.dll"
 }
