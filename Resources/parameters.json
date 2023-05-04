@@ -43,6 +43,9 @@
         },
         "azureMapSubscriptionKey": {
             "value": "__AzureMapSubscriptionKey__"
+        },
+        "appInsightsInstrumentationKey": {
+            "value": "__appInsightsInstrumentationKey__" 
         }
     }
 }
