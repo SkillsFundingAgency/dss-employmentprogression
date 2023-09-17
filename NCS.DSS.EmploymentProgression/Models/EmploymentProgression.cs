@@ -38,16 +38,19 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Required]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
 
+        //[RegularExpression(@"^[0-9a-zA-Z]+$")]
         [Display(Description = "Economic Shock Code")]
         [Example(Description = "Thousands of employees made redundant at local car plant.")]
         [StringLength(50)]
         public string EconomicShockCode { get; set; }
 
+        [RegularExpression(@"^[a-zA-Z]+(([\s'\,\.\-][a-zA-Z])?[a-zA-Z]*)*$")]
         [Display(Description = "Name of the employer")]
         [Example(Description = "Employer Limited")]
         [StringLength(200)]
         public string EmployerName { get; set; }
 
+        [RegularExpression(@"^[^<>]+$")]
         [Display(Description = "Address of employer")]
         [Example(Description = "1 Employer Street, Coventry, West Midlands")]
         [StringLength(500)]
@@ -95,6 +98,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         public DateTime? LastModifiedDate { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
+        [RegularExpression(@"^[0-9]+$")]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "0000000001")]
         public string LastModifiedTouchpointId { get; set; }

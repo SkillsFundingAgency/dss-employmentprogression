@@ -9,6 +9,7 @@ namespace NCS.DSS.EmploymentProgression.Models
 {
     public class EmploymentProgressionPatch : IEmploymentProgression
     {
+        private const string PostcodeRegEx = @"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})";
 
         [Display(Description = "Unique identifier for a Employment Progression record")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
@@ -33,20 +34,25 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Display(Description = "Economic shock status")]
         [Example(Description = "2")]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
+
+        //[RegularExpression(@"^[0-9a-zA-Z]+$")]
         [Display(Description = "Economic Shock Code")]
         [Example(Description = "Thousands of employee made redundant at local car plant.")]
         public string EconomicShockCode { get; set; }
 
+        [RegularExpression(@"^[a-zA-Z]+(([\s'\,\.\-][a-zA-Z])?[a-zA-Z]*)*$")]
         [Display(Description = "Name of the employer")]
         [Example(Description = "Employer Limited")]
         [StringLength(200)]
         public string EmployerName { get; set; }
 
+        [RegularExpression(@"^[^<>]+$")]
         [Display(Description = "Address of employer")]
         [Example(Description = "1 Employer Street, Coventry, West Midlands")]
         [StringLength(500)]
         public string EmployerAddress { get; set; }
 
+        [RegularExpression(PostcodeRegEx, ErrorMessage = "Please enter a valid postcode")]
         [Display(Description = "Postcode of the employer")]
         [Example(Description = "CV12 1CS")]
         [StringLength(10)]
@@ -86,6 +92,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         public DateTime? LastModifiedDate { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
+        [RegularExpression(@"^[0-9]+$")]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "0000000001")]
         public string LastModifiedTouchpointId { get; set; }
