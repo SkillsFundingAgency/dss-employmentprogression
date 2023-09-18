@@ -177,6 +177,48 @@ namespace NCS.DSS.EmploymentProgression.Tests.ValidationTests
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Count);
         }
+
+        [Test]
+        public void ValidateTests_ReturnValidationResult_WhenEconomicShockCodeIsValid()
+        {
+            var employmentProgression = new Models.EmploymentProgressionPatch
+            {
+                CustomerId = Guid.NewGuid(),
+                EmploymentProgressionId = Guid.NewGuid(),
+                EconomicShockStatus = ReferenceData.EconomicShockStatus.NotApplicable,
+                DateProgressionRecorded = DateTime.UtcNow,
+                CurrentEmploymentStatus = ReferenceData.CurrentEmploymentStatus.NotKnown,
+                LastModifiedTouchpointId = "0000000001",
+                EconomicShockCode = "Some relevant data here 18/09/2023"
+            };
+
+            var result = _validate.ValidateResource(employmentProgression);
+
+            Assert.IsInstanceOf<List<ValidationResult>>(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [Test]
+        public void ValidateTests_ReturnValidationResult_WhenEconomicShockCodeIsInvalid()
+        {
+            var employmentProgression = new Models.EmploymentProgressionPatch
+            {
+                CustomerId = Guid.NewGuid(),
+                EmploymentProgressionId = Guid.NewGuid(),
+                EconomicShockStatus = ReferenceData.EconomicShockStatus.NotApplicable,
+                DateProgressionRecorded = DateTime.UtcNow,
+                CurrentEmploymentStatus = ReferenceData.CurrentEmploymentStatus.NotKnown,
+                LastModifiedTouchpointId = "0000000001",
+                EconomicShockCode = "Some relevant data here <18/09/2023>"
+            };
+
+            var result = _validate.ValidateResource(employmentProgression);
+
+            Assert.IsInstanceOf<List<ValidationResult>>(result);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count);
+        }
     }
 }
 

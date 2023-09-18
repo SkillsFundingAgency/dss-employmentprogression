@@ -35,7 +35,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Example(Description = "2")]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
 
-        //[RegularExpression(@"^[0-9a-zA-Z]+$")]
+        [RegularExpression(@"^[^<>]+$")]
         [Display(Description = "Economic Shock Code")]
         [Example(Description = "Thousands of employee made redundant at local car plant.")]
         public string EconomicShockCode { get; set; }
