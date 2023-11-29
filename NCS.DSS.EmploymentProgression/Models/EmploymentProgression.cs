@@ -33,9 +33,8 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Required]
         public CurrentEmploymentStatus? CurrentEmploymentStatus { get; set; }
 
-        [Display(Description = "Economic shock status.")]
-        [Example(Description = "2")]
-        [Required]
+        [Display(Description = "Economic shock status. Defaults to 3 if not provided")]
+        [Example(Description = "3")]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
 
         [RegularExpression(@"^[^<>]+$")]
