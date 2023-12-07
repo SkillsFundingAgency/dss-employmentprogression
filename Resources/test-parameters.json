@@ -43,6 +43,9 @@
         },
         "azureMapSubscriptionKey": {
             "value": "not-a-real-api-key"
+        },
+        "appInsightsInstrumentationKey": {
+            "value": "app-Insights-Instrumentation-Key" 
         }
     }
 }
