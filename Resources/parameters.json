@@ -43,6 +43,12 @@
         },
         "azureMapSubscriptionKey": {
             "value": "__AzureMapSubscriptionKey__"
+        },
+        "workspaceName": {
+            "value": "__sharedLogAnalyticsWorkspace__"
+        },
+        "workspaceResourceGroup": {
+            "value": "__sharedLogAnalyticsResourceGroup__"
         }
     }
 }

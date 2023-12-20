@@ -43,6 +43,12 @@
         },
         "azureMapSubscriptionKey": {
             "type": "securestring"
+        },
+        "workspaceName": {
+            "type": "string"
+        },
+        "workspaceResourceGroup": {
+            "type": "string"
         }
     },
     "variables": {
@@ -96,6 +102,9 @@
                     },
                     "azureMapSubscriptionKey": {
                         "value": "[parameters('azureMapSubscriptionKey')]"
+                    },
+                    "workspaceId": {
+                        "value": "[resourceId(parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
                     }
                 }
             },
