@@ -45,7 +45,7 @@
             "value": "not-a-real-api-key"
         },
         "workspaceName": {
-          "value": "aTestLogAnalyticsAccount"
+            "value": "aTestLogAnalyticsAccount"
         },
         "workspaceResourceGroup": {
             "value": "aResourceGroup"
