@@ -43,6 +43,12 @@
         },
         "azureMapSubscriptionKey": {
             "value": "not-a-real-api-key"
+        },
+        "workspaceName": {
+          "value": "aTestLogAnalyticsAccount"
+        },
+        "workspaceResourceGroup": {
+            "value": "aResourceGroup"
         }
     }
 }
