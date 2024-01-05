@@ -5,6 +5,7 @@ using NCS.DSS.EmploymentProgression.ServiceBus;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using NCS.DSS.EmploymentProgression.ReferenceData;
 
 namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 {
@@ -58,11 +59,8 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
         public void SetDefaults(Models.EmploymentProgression employmentProgression, string touchpointId)
         {
             employmentProgression.CreatedBy = touchpointId;
-
-            if (!employmentProgression.DateProgressionRecorded.HasValue)
-            {
-                employmentProgression.DateProgressionRecorded = DateTime.UtcNow;
-            }
+            employmentProgression.DateProgressionRecorded ??= DateTime.UtcNow;
+            employmentProgression.EconomicShockStatus ??= EconomicShockStatus.NotApplicable;
         }
 
         public void SetLongitudeAndLatitude(Models.EmploymentProgression employmentProgressionRequest, Position position)

@@ -238,6 +238,24 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Test]
+        public async Task Post_SuccessfulRequest_SetDefaultsCalled()
+        {
+            // arrange
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
+            _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
+            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));
+
+            // Act
+            _ = await RunFunction(ValidCustomerId);
+
+            //Assert
+            _employmentProgressionPostTriggerService.Verify(x => x.SetDefaults(It.IsAny<Models.EmploymentProgression>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
         public async Task Post_SuccessfulRequest_ReturnCreated()
         {
             // arrange
