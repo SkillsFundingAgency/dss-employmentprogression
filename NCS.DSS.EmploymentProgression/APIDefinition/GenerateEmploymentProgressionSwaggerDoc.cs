@@ -34,10 +34,7 @@ namespace NCS.DSS.EmploymentProgression.APIDefinition
                 return new NoContentResult();
             }
 
-            return new JsonResult(swaggerDoc)
-            {
-                StatusCode = (int)HttpStatusCode.OK
-            };
+            return new OkObjectResult(swaggerDoc);
         }
     }
 }
