@@ -1,6 +1,6 @@
 ﻿
-using System;
 using Microsoft.Azure.Documents.Client;
+using System;
 
 namespace NCS.DSS.Contact.Cosmos.Helper
 {

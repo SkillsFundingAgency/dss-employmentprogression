@@ -3,11 +3,13 @@ using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
+using NCS.DSS.EmploymentProgression.Models;
 using NUnit.Framework;
 using System;
 using System.Net;
@@ -19,12 +21,12 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
     public class EmploymentProgressionGetByIdTriggerTests
     {
         private EmploymentProgressionGetByIdTrigger _function;
-        private IHttpResponseMessageHelper _httpResponseHelper;
         private Mock<IHttpRequestHelper> _httpRequestHelper;
+        private Mock<IConvertToDynamic<Models.EmploymentProgression>> _convertToDynamic;
         private Mock<IEmploymentProgressionGetByIdTriggerService> _EmploymentProgressionGetByIdTriggerService;
         private IJsonHelper _jsonHelper;
         private Mock<IResourceHelper> _resourceHelper;
-        private Mock<ILoggerHelper> _loggerHelper;
+        private Mock<ILogger<EmploymentProgressionGetByIdTrigger>> _loggerHelper;
         private Mock<IGuidHelper> _guidHelper;
         private Mock<ILogger> _logger;
         private HttpRequest _request;
@@ -34,17 +36,16 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         [SetUp]
         public void Setup()
         {
-            _httpResponseHelper = new HttpResponseMessageHelper();
+            _convertToDynamic = new Mock<IConvertToDynamic<Models.EmploymentProgression>>();
             _httpRequestHelper = new Mock<IHttpRequestHelper>();
             _EmploymentProgressionGetByIdTriggerService = new Mock<IEmploymentProgressionGetByIdTriggerService>();
             _jsonHelper = new JsonHelper(); ;
             _resourceHelper = new Mock<IResourceHelper>();
-            _loggerHelper = new Mock<ILoggerHelper>(); ;
+            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetByIdTrigger>>(); ;
             _guidHelper = new Mock<IGuidHelper>();
             _logger = new Mock<ILogger>();
-            _function = new EmploymentProgressionGetByIdTrigger(_httpResponseHelper, _httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _jsonHelper, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
-            _request = new DefaultHttpRequest(new DefaultHttpContext());
-            
+            _function = new EmploymentProgressionGetByIdTrigger( _httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
+            _request = (new DefaultHttpContext()).Request;            
         }
 
 
@@ -58,7 +59,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction("", "");
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -72,7 +73,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction("", "");
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -87,7 +88,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction("InvalidCustomerId", "");
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode );
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -103,7 +104,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction("844a6215-8413-41ba-96b0-b4cc7041ca33", "");
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -118,14 +119,16 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(_validCustomerId.ToString(), _validEmploymentProgressionId.ToString());
+            var jsonResponse = (JsonResult)response;
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(jsonResponse.StatusCode,Is.EqualTo((int)HttpStatusCode.OK));
         }
 
-        private async Task<HttpResponseMessage> RunFunction(string customerId, string employmentProgressionId)
+        private async Task<IActionResult> RunFunction(string customerId, string employmentProgressionId)
         {
-            return await _function.Run(_request, _logger.Object,customerId, employmentProgressionId).ConfigureAwait(false);
+            return await _function.Run(_request,customerId, employmentProgressionId).ConfigureAwait(false);
         }
     }
 }

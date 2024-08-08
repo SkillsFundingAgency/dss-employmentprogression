@@ -37,7 +37,7 @@ public class EmploymentProgressionPostTriggerServiceTests
         _sut.SetDefaults(employmentProgression, "ANY_STRING");
 
         // Assert
-        Assert.AreEqual(expected, employmentProgression.EconomicShockStatus);
+        Assert.That(employmentProgression.EconomicShockStatus,Is.EqualTo(expected));
     }
 
     [Test]
@@ -51,7 +51,7 @@ public class EmploymentProgressionPostTriggerServiceTests
         _sut.SetDefaults(employmentProgression, expected);
 
         // Assert
-        Assert.AreEqual(expected, employmentProgression.CreatedBy);
+        Assert.That(employmentProgression.CreatedBy, Is.EqualTo(expected));
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class EmploymentProgressionPostTriggerServiceTests
         _sut.SetDefaults(employmentProgression, "ANY_STRING");
 
         // Assert
-        Assert.IsNotNull(employmentProgression.DateProgressionRecorded);
+        Assert.That(employmentProgression.DateProgressionRecorded,Is.Not.Null);
     }
 
     [Test]
@@ -84,6 +84,6 @@ public class EmploymentProgressionPostTriggerServiceTests
         _sut.SetDefaults(employmentProgression, "ANY_STRING");
 
         // Assert
-        Assert.AreEqual(expected, employmentProgression.DateProgressionRecorded);
+        Assert.That(employmentProgression.DateProgressionRecorded, Is.EqualTo(expected));
     }
 }

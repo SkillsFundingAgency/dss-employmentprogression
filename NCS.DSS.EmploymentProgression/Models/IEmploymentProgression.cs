@@ -1,5 +1,5 @@
-﻿using System;
-using NCS.DSS.EmploymentProgression.ReferenceData;
+﻿using NCS.DSS.EmploymentProgression.ReferenceData;
+using System;
 
 namespace NCS.DSS.EmploymentProgression.Models
 {
