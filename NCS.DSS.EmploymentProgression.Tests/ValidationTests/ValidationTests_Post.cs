@@ -24,17 +24,17 @@ namespace NCS.DSS.EmploymentProgression.Tests.ValidationTests
             {
                 CustomerId = Guid.NewGuid(),
                 EmploymentProgressionId = Guid.NewGuid(),
-                EconomicShockStatus = ReferenceData.EconomicShockStatus.NotApplicable, 
-                DateProgressionRecorded = DateTime.UtcNow, 
+                EconomicShockStatus = ReferenceData.EconomicShockStatus.NotApplicable,
+                DateProgressionRecorded = DateTime.UtcNow,
                 CurrentEmploymentStatus = ReferenceData.CurrentEmploymentStatus.NotKnown,
                 LastModifiedTouchpointId = "0000000001"
             };
 
             var result = _validate.ValidateResource(employmentProgression);
 
-            Assert.That(result,Is.InstanceOf<List<ValidationResult>>());
-            Assert.That(result,Is.Not.Null);
-            Assert.That(result.Count,Is.EqualTo(0));
+            Assert.That(result, Is.InstanceOf<List<ValidationResult>>());
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.ValidationTests
                 EconomicShockStatus = ReferenceData.EconomicShockStatus.NotApplicable,
                 DateProgressionRecorded = DateTime.UtcNow,
                 CurrentEmploymentStatus = ReferenceData.CurrentEmploymentStatus.NotKnown,
-                LastModifiedTouchpointId = "0000000001", 
+                LastModifiedTouchpointId = "0000000001",
                 EmployerAddress = "10 Any Street, AnyTown"
             };
 

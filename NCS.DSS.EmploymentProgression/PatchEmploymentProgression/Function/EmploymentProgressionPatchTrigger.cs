@@ -135,7 +135,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                 _loggerHelper.LogInformation($"[{correlationGuid}] Customer is readonly with customerId {customerGuid}.");
                 return new ObjectResult(customerGuid)
                 {
-                    StatusCode = (int) HttpStatusCode.Forbidden
+                    StatusCode = (int)HttpStatusCode.Forbidden
                 };
             }
 
@@ -223,7 +223,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             new NoContentResult() :
             new JsonResult(_convertToDynamic.RenameProperty(updatedEmploymentProgression, "id", "EmploymentProgressionId"))
             {
-                StatusCode = (int) HttpStatusCode.OK
+                StatusCode = (int)HttpStatusCode.OK
             };
         }
     }

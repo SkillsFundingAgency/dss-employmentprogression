@@ -1,9 +1,7 @@
 ﻿using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -13,7 +11,6 @@ using NCS.DSS.EmploymentProgression.Models;
 using NUnit.Framework;
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
@@ -44,8 +41,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _loggerHelper = new Mock<ILogger<EmploymentProgressionGetByIdTrigger>>(); ;
             _guidHelper = new Mock<IGuidHelper>();
             _logger = new Mock<ILogger>();
-            _function = new EmploymentProgressionGetByIdTrigger( _httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
-            _request = (new DefaultHttpContext()).Request;            
+            _function = new EmploymentProgressionGetByIdTrigger(_httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
+            _request = (new DefaultHttpContext()).Request;
         }
 
 
@@ -53,7 +50,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         public async Task Get_WhenTouchPointHeaderIsMission_ReturnBadRequest()
         {
             // Arrange
-            _EmploymentProgressionGetByIdTriggerService.Setup(x=>x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
+            _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
 
             // Act
             var response = await RunFunction("", "");
@@ -66,8 +63,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         public async Task Get_WhenGetDssApimUrlGetDssApimUrlIsEMpty_ReturnBadRequest()
         {
             // arrange
-            _httpRequestHelper.Setup(x=>x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
-            _EmploymentProgressionGetByIdTriggerService.Setup(x=>x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
+            _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
+            _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
 
             // Act
             var response = await RunFunction("", "");
@@ -81,7 +78,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         {
             // arrange
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
-            _httpRequestHelper.Setup(x=>x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
+            _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
 
             // Act
@@ -98,7 +95,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
-            _resourceHelper.Setup(x=>x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction("844a6215-8413-41ba-96b0-b4cc7041ca33", "");
@@ -123,12 +120,12 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
             //Assert
             Assert.That(response, Is.InstanceOf<JsonResult>());
-            Assert.That(jsonResponse.StatusCode,Is.EqualTo((int)HttpStatusCode.OK));
+            Assert.That(jsonResponse.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         private async Task<IActionResult> RunFunction(string customerId, string employmentProgressionId)
         {
-            return await _function.Run(_request,customerId, employmentProgressionId).ConfigureAwait(false);
+            return await _function.Run(_request, customerId, employmentProgressionId).ConfigureAwait(false);
         }
     }
 }

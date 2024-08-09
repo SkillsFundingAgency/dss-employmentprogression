@@ -1,10 +1,10 @@
-﻿using System;
-using Moq;
+﻿using Moq;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.ReferenceData;
 using NCS.DSS.EmploymentProgression.ServiceBus;
 using NUnit.Framework;
+using System;
 
 namespace NCS.DSS.EmploymentProgression.Tests.ServiceTests;
 
@@ -37,7 +37,7 @@ public class EmploymentProgressionPostTriggerServiceTests
         _sut.SetDefaults(employmentProgression, "ANY_STRING");
 
         // Assert
-        Assert.That(employmentProgression.EconomicShockStatus,Is.EqualTo(expected));
+        Assert.That(employmentProgression.EconomicShockStatus, Is.EqualTo(expected));
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class EmploymentProgressionPostTriggerServiceTests
         _sut.SetDefaults(employmentProgression, "ANY_STRING");
 
         // Assert
-        Assert.That(employmentProgression.DateProgressionRecorded,Is.Not.Null);
+        Assert.That(employmentProgression.DateProgressionRecorded, Is.Not.Null);
     }
 
     [Test]

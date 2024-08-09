@@ -93,7 +93,7 @@ namespace NCS.DSS.EmploymentProgression
 
             return employmentProgression == null ?
                 new NoContentResult() :
-                new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int) HttpStatusCode.OK };
+                new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.OK };
         }
     }
 }

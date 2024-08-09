@@ -1,5 +1,4 @@
 ﻿using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
@@ -50,7 +48,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private Models.EmploymentProgression _employmentProgression;
 
 
-         [SetUp]
+        [SetUp]
         public void Setup()
         {
             _employmentProgression = new Models.EmploymentProgression() { CustomerId = Guid.NewGuid() };
@@ -161,7 +159,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
-            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression)); 
+            _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));
 
             // Act
             var response = await RunFunction(ValidCustomerId);
@@ -180,13 +178,13 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
             _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));
-            _employmentProgressionPostTriggerService.Setup(x=>x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _employmentProgressionPostTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
 
             // Act
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<ConflictResult>()); 
+            Assert.That(response, Is.InstanceOf<ConflictResult>());
         }
 
         [Test]
@@ -259,7 +257,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             // arrange
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
-            _httpRequestHelper.Setup(x=>x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
+            _httpRequestHelper.Setup(x => x.GetResourceFromRequest<Models.EmploymentProgression>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(_employmentProgression));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _valdiator.Setup(x => x.ValidateResource(It.IsAny<Models.EmploymentProgression>())).Returns(new List<ValidationResult>());
             _employmentProgressionPostTriggerService.Setup(x => x.CreateEmploymentProgressionAsync(It.IsAny<Models.EmploymentProgression>())).Returns(Task.FromResult(_employmentProgression));

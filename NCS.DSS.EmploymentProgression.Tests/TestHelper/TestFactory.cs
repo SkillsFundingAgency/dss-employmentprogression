@@ -32,7 +32,7 @@ namespace NCS.DSS.EmploymentProgression.Tests
             var request = new DefaultHttpContext().Request;
 
             request.Query = new QueryCollection(CreateDictionary(queryStringKey, queryStringValue));
-           
+
             return request;
         }
 

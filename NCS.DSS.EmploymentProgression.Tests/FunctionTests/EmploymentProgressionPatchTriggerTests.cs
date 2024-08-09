@@ -1,7 +1,5 @@
 ﻿using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
@@ -197,7 +194,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentProgressionPatchTriggerService.Setup(x=>x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
@@ -259,7 +256,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
 
             //Assert
-            Assert.That(response, Is.InstanceOf<UnprocessableEntityObjectResult>()); 
+            Assert.That(response, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
         [Test]

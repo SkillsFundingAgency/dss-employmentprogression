@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using System.Net;
 using System.Reflection;
 
 namespace NCS.DSS.EmploymentProgression.APIDefinition
