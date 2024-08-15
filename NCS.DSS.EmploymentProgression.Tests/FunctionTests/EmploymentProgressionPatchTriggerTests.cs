@@ -1,9 +1,7 @@
 ﻿using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
@@ -18,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
@@ -33,11 +30,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private EmploymentProgressionPatch InvalidEmploymentProgressionPatch = null;
         private List<ValidationResult> ValidationResultNoErrors = new List<ValidationResult>();
         private EmploymentProgressionPatch _EmploymentProgressionPatch;
-        private Mock<ILoggerHelper> _loggerHelper;
+        private Mock<ILogger<EmploymentProgressionPatchTrigger>> _loggerHelper;
         private Mock<IGeoCodingService> _geoService;
-        private JsonHelper _jsonHelper;
+        private Mock<IConvertToDynamic<Models.EmploymentProgression>> _convertToDynamic;
         private Mock<GuidHelper> _guidHelper;
-        private HttpResponseMessageHelper _responseMessageHelper;
         private Mock<IHttpRequestHelper> _requestHelper;
         private Mock<IEmploymentProgressionPatchService> _employmentProgressionPatchService;
         private Mock<IEmploymentProgressionPatchTriggerService> _employmentProgressionPatchTriggerService;
@@ -57,11 +53,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         public void Setup()
         {
             _logger = new Mock<ILogger>();
-            _loggerHelper = new Mock<ILoggerHelper>();
+            _loggerHelper = new Mock<ILogger<EmploymentProgressionPatchTrigger>>();
             _geoService = new Mock<IGeoCodingService>();
-            _jsonHelper = new JsonHelper();
+            _convertToDynamic = new Mock<IConvertToDynamic<Models.EmploymentProgression>>();
             _guidHelper = new Mock<GuidHelper>();
-            _responseMessageHelper = new HttpResponseMessageHelper();
             _requestHelper = new Mock<IHttpRequestHelper>();
             _employmentProgressionPatchService = new Mock<IEmploymentProgressionPatchService>();
             _employmentProgressionPatchTriggerService = new Mock<IEmploymentProgressionPatchTriggerService>();
@@ -70,17 +65,16 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _EmploymentProgressionPatch = new EmploymentProgressionPatch();
 
             _function = new EmploymentProgressionPatchTrigger(
-                _responseMessageHelper,
                 _requestHelper.Object,
                 _employmentProgressionPatchTriggerService.Object,
-                _jsonHelper,
+                _convertToDynamic.Object,
                 _resourceHelper.Object,
                 _valdiator.Object,
                 _loggerHelper.Object,
                 _geoService.Object,
                 _guidHelper.Object,
                 _employmentProgressionPatchService.Object);
-            _request = new DefaultHttpRequest(new DefaultHttpContext());
+            _request = (new DefaultHttpContext()).Request;
         }
 
 
@@ -92,7 +86,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -105,7 +99,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
 
@@ -121,7 +115,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(InvalidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -135,7 +129,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, InvalidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -150,7 +144,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -166,9 +160,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
-
+            var objResponse = (ObjectResult)response;
             //Assert
-            Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<ObjectResult>());
+            Assert.That(objResponse.StatusCode, Is.EqualTo((int)HttpStatusCode.Forbidden));
         }
 
         [Test]
@@ -186,7 +181,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -199,13 +194,13 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
             _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
             _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentProgressionPatchTriggerService.Setup(x=>x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -226,7 +221,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -246,10 +241,9 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _employmentProgressionPatchService.Setup(x => x.PatchEmploymentProgressionAsync(It.IsAny<string>(), It.IsAny<EmploymentProgressionPatch>())).Returns(employmentjson);
             _employmentProgressionPatchTriggerService.Setup(x => x.UpdateCosmosAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
             _function = new EmploymentProgressionPatchTrigger(
-                _responseMessageHelper,
                 _requestHelper.Object,
                 _employmentProgressionPatchTriggerService.Object,
-                _jsonHelper,
+                _convertToDynamic.Object,
                 _resourceHelper.Object,
                 val,
                 _loggerHelper.Object,
@@ -262,7 +256,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
         [Test]
@@ -283,14 +277,15 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
-
+            var jsonResponse = (JsonResult)response;
             //Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(jsonResponse.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
-        private async Task<HttpResponseMessage> RunFunction(string customerId, string employmentProgressionId)
+        private async Task<IActionResult> RunFunction(string customerId, string employmentProgressionId)
         {
-            return await _function.Run(_request, _logger.Object, customerId, employmentProgressionId).ConfigureAwait(false);
+            return await _function.Run(_request, customerId, employmentProgressionId).ConfigureAwait(false);
         }
     }
 }

@@ -1,18 +1,16 @@
 ﻿using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
+using NCS.DSS.EmploymentProgression.Models;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
@@ -24,29 +22,25 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private const string InvalidCustomerId = "InvalidCustomerId";
         private List<Models.EmploymentProgression> EmploymentProgressions = new List<Models.EmploymentProgression>();
         private EmploymentProgressionGetTrigger _function;
-        private IHttpResponseMessageHelper _httpResponseHelper;
         private Mock<IHttpRequestHelper> _httpRequestHelper;
         private Mock<IEmploymentProgressionGetTriggerService> _employmentTriggerService;
-        private JsonHelper _jsonHelper;
+        private IConvertToDynamic<Models.EmploymentProgression> _convertToDynamic;
         private Mock<IResourceHelper> _resourceHelper;
-        private Mock<ILoggerHelper> _loggerHelper;
+        private Mock<ILogger<EmploymentProgressionGetTrigger>> _loggerHelper;
         private Mock<IGuidHelper> _guidHelper;
         private HttpRequest _request;
-        private Mock<ILogger> _logger;
 
         [SetUp]
         public void Setup()
         {
-            _httpResponseHelper = new HttpResponseMessageHelper();
             _httpRequestHelper = new Mock<IHttpRequestHelper>();
             _employmentTriggerService = new Mock<IEmploymentProgressionGetTriggerService>();
-            _jsonHelper = new JsonHelper(); ;
+            _convertToDynamic = new ConvertToDynamic<Models.EmploymentProgression>(); ;
             _resourceHelper = new Mock<IResourceHelper>();
-            _loggerHelper = new Mock<ILoggerHelper>(); ;
+            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetTrigger>>(); ;
             _guidHelper = new Mock<IGuidHelper>();
-            _logger = new Mock<ILogger>();
-            _function = new EmploymentProgressionGetTrigger(_httpResponseHelper, _httpRequestHelper.Object, _employmentTriggerService.Object, _jsonHelper, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
-            _request = new DefaultHttpRequest(new DefaultHttpContext());
+            _function = new EmploymentProgressionGetTrigger(_httpRequestHelper.Object, _employmentTriggerService.Object, _convertToDynamic, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
+            _request = (new DefaultHttpContext()).Request;
         }
 
         [Test]
@@ -56,7 +50,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.AreEqual( HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -69,7 +63,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -83,7 +77,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(InvalidCustomerId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -98,7 +92,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -113,7 +107,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<NoContentResult>());
         }
 
         [Test]
@@ -127,14 +121,15 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 
             // Act
             var response = await RunFunction(ValidCustomerId);
-
+            var jsonResponse = (JsonResult)response;
             //Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(jsonResponse.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
-        private async Task<HttpResponseMessage> RunFunction(string customerId)
+        private async Task<IActionResult> RunFunction(string customerId)
         {
-            return await _function.Run(_request, _logger.Object, customerId).ConfigureAwait(false);
+            return await _function.Run(_request, customerId).ConfigureAwait(false);
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCS.DSS.EmploymentProgression", "NCS.DSS.EmploymentProgression\NCS.DSS.EmploymentProgression.csproj", "{A113333C-E323-4B30-BC67-1573B56A96D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.EmploymentProgression", "NCS.DSS.EmploymentProgression\NCS.DSS.EmploymentProgression.csproj", "{A113333C-E323-4B30-BC67-1573B56A96D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCS.DSS.EmploymentProgression.Tests", "NCS.DSS.EmploymentProgression.Tests\NCS.DSS.EmploymentProgression.Tests.csproj", "{4FF7F065-590D-4DE2-BD43-3F242615CEC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCS.DSS.EmploymentProgression.Tests", "NCS.DSS.EmploymentProgression.Tests\NCS.DSS.EmploymentProgression.Tests.csproj", "{4FF7F065-590D-4DE2-BD43-3F242615CEC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

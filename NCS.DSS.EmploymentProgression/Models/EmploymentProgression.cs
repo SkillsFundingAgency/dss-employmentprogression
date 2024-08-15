@@ -35,6 +35,7 @@ namespace NCS.DSS.EmploymentProgression.Models
 
         [Display(Description = "Economic shock status. Defaults to 3 if not provided")]
         [Example(Description = "3")]
+        [Required]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
 
         [RegularExpression(@"^[^<>]+$")]

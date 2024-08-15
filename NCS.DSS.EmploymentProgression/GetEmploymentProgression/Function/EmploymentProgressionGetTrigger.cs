@@ -1,20 +1,17 @@
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Net.Http;
-using System.Net;
-using DFC.Swagger.Standard.Annotations;
-using Microsoft.AspNetCore.Mvc;
 using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
-using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
-using DFC.JSON.Standard;
+using DFC.Swagger.Standard.Annotations;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
-using DFC.Common.Standard.Logging;
+using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
+using NCS.DSS.EmploymentProgression.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression
 {
@@ -22,34 +19,31 @@ namespace NCS.DSS.EmploymentProgression
     {
         const string RouteValue = "customers/{customerId}/employmentprogressions";
         const string FunctionName = "Get";
-        private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IEmploymentProgressionGetTriggerService _EmploymentProgressionsGetTriggerService;
-        private readonly IJsonHelper _jsonHelper;
+        private readonly IConvertToDynamic<Models.EmploymentProgression> _convertToDynamic;
         private readonly IResourceHelper _resourceHelper;
-        private readonly ILoggerHelper _loggerHelper;
+        private readonly ILogger<EmploymentProgressionGetTrigger> _loggerHelper;
         private readonly IGuidHelper _guidHelper;
 
         public EmploymentProgressionGetTrigger(
-            IHttpResponseMessageHelper httpResponseMessageHelper,
             IHttpRequestHelper httpRequestHelper,
             IEmploymentProgressionGetTriggerService EmploymentProgressionsGetTriggerService,
-            IJsonHelper jsonHelper,
+            IConvertToDynamic<Models.EmploymentProgression> convertToDynamic,
             IResourceHelper resourceHelper,
-            ILoggerHelper loggerHelper,
+            ILogger<EmploymentProgressionGetTrigger> loggerHelper,
             IGuidHelper guidHelper
             )
         {
-            _httpResponseMessageHelper = httpResponseMessageHelper;
             _httpRequestHelper = httpRequestHelper;
             _EmploymentProgressionsGetTriggerService = EmploymentProgressionsGetTriggerService;
-            _jsonHelper = jsonHelper;
+            _convertToDynamic = convertToDynamic;
             _resourceHelper = resourceHelper;
             _loggerHelper = loggerHelper;
             _guidHelper = guidHelper;
         }
 
-        [FunctionName(FunctionName)]
+        [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Employment progression found.", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
@@ -59,47 +53,47 @@ namespace NCS.DSS.EmploymentProgression
         [ProducesResponseType(typeof(Models.EmploymentProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to return all employment progression for the given customer.")]
 
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
-            HttpRequest req, ILogger logger, string customerId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
+            HttpRequest req, string customerId)
         {
-            _loggerHelper.LogMethodEnter(logger);
-     
+            _loggerHelper.LogInformation("Started EmploymentProgressionGetTrigger");
+
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             var correlationGuid = _guidHelper.ValidateAndGetGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'TouchpointId' in request header.");
-                return _httpResponseMessageHelper.BadRequest();
+                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to locate 'TouchpointId' in request header.");
+                return new BadRequestResult();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Unable to locate 'apimurl' in request header");
-                return _httpResponseMessageHelper.BadRequest();
+                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to locate 'apimurl' in request header");
+                return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, $"Unable to parse 'customerId' to a Guid: {customerId}");
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to parse 'customerId' to a Guid: {customerId}");
+                return new BadRequestObjectResult(customerId);
             }
 
             if (!await _resourceHelper.DoesCustomerExist(customerGuid))
             {
-                _loggerHelper.LogInformationMessage(logger, correlationGuid, "Bad request");
-                return _httpResponseMessageHelper.NoContent();
+                _loggerHelper.LogInformation($"[{correlationGuid}] Customer [{customerGuid}] does not exist");
+                return new NoContentResult();
             }
 
             var employmentProgression = await _EmploymentProgressionsGetTriggerService.GetEmploymentProgressionsForCustomerAsync(customerGuid);
 
-            _loggerHelper.LogMethodExit(logger);
+            _loggerHelper.LogInformation("Exited EmploymentProgressionGetTrigger");
 
             return employmentProgression == null ?
-            _httpResponseMessageHelper.NoContent(customerGuid) :
-            _httpResponseMessageHelper.Ok(_jsonHelper.SerializeObjectsAndRenameIdProperty(employmentProgression, "id", "EmploymentProgressionId"));
+                new NoContentResult() :
+                new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.OK };
         }
     }
 }
