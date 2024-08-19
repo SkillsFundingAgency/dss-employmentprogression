@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
-using System;
 
 namespace NCS.DSS.EmploymentProgression.CosmosDocumentClient
 {

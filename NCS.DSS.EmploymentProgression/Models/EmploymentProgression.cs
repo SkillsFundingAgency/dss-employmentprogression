@@ -2,7 +2,6 @@
 using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.EmploymentProgression.ReferenceData;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
 using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribute;
 

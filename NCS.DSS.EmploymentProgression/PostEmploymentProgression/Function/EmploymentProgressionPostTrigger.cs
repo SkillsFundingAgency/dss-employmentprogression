@@ -11,11 +11,8 @@ using NCS.DSS.EmployeeProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Validators;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression
 {
@@ -129,7 +126,7 @@ namespace NCS.DSS.EmploymentProgression
             catch (Exception ex)
             {
                 _loggerHelper.LogError($"[{correlationGuid}] Unable to retrieve body from req", ex);
-                return new UnprocessableEntityObjectResult(_convertToDynamic.ExcludeProperty(ex, ["TargetSite","InnerException"]));
+                return new UnprocessableEntityObjectResult(_convertToDynamic.ExcludeProperty(ex, ["TargetSite", "InnerException"]));
             }
 
             if (employmentProgressionRequest == null)

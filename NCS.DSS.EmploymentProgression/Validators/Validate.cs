@@ -1,7 +1,5 @@
 ﻿using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.ReferenceData;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.EmploymentProgression.Validators

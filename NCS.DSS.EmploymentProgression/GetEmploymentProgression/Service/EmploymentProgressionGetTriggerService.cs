@@ -1,8 +1,5 @@
 ﻿using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.ServiceBus;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service
 {

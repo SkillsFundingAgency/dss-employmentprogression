@@ -8,10 +8,8 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Models;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression
 {

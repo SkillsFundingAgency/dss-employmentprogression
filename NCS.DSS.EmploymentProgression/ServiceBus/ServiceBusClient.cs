@@ -3,9 +3,7 @@ using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Models;
 using Newtonsoft.Json;
-using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.ServiceBus
 {
