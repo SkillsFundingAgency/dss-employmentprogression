@@ -1,7 +1,5 @@
 ﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 {

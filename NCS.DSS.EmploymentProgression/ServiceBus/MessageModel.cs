@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NCS.DSS.EmploymentProgression.ServiceBus
+﻿namespace NCS.DSS.EmploymentProgression.ServiceBus
 {
     public class MessageModel
     {
