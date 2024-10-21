@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using DFC.GeoCoding.Standard.AzureMaps.Model;
+﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
 using DFC.GeoCoding.Standard.AzureMaps.Service;
 
 namespace NCS.DSS.EmployeeProgression.GeoCoding

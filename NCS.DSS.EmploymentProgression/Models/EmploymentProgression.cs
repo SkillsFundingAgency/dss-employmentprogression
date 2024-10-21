@@ -2,7 +2,6 @@
 using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.EmploymentProgression.ReferenceData;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations;
 using RequiredAttribute = System.ComponentModel.DataAnnotations.RequiredAttribute;
 
@@ -35,6 +34,7 @@ namespace NCS.DSS.EmploymentProgression.Models
 
         [Display(Description = "Economic shock status. Defaults to 3 if not provided")]
         [Example(Description = "3")]
+        [Required]
         public EconomicShockStatus? EconomicShockStatus { get; set; }
 
         [RegularExpression(@"^[^<>]+$")]

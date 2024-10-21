@@ -1,11 +1,9 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using NCS.DSS.EmploymentProgression.Models;
+﻿using DFC.Common.Standard.Logging;
 using Microsoft.Azure.ServiceBus;
-using DFC.Common.Standard.Logging;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.EmploymentProgression.Models;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace NCS.DSS.EmploymentProgression.ServiceBus
 {

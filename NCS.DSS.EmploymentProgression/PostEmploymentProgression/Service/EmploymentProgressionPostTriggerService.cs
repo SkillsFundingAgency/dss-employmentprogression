@@ -1,11 +1,9 @@
 ﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
-using NCS.DSS.EmploymentProgression.ServiceBus;
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using NCS.DSS.EmploymentProgression.ReferenceData;
+using NCS.DSS.EmploymentProgression.ServiceBus;
+using System.Net;
 
 namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 {

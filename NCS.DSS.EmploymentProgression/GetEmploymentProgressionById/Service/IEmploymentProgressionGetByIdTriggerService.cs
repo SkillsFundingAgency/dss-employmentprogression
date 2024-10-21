@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service
+﻿namespace NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service
 {
     public interface IEmploymentProgressionGetByIdTriggerService
     {

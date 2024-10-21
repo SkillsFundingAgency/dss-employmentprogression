@@ -1,7 +1,7 @@
 # DSS Employment Progression
 
 > [!NOTE]  
-> The latest version of this API is `v3`
+> The latest version of this API is `v4`
 
 [![Build Status](https://sfa-gov-uk.visualstudio.com/CDS%202.0/_apis/build/status/Yaml/dss-employmentprogression?repoName=SkillsFundingAgency%2Fdss-employmentprogression&branchName=master-v3)](https://sfa-gov-uk.visualstudio.com/CDS%202.0/_build/latest?definitionId=1717&repoName=SkillsFundingAgency%2Fdss-employmentprogression&branchName=master-v3)
 

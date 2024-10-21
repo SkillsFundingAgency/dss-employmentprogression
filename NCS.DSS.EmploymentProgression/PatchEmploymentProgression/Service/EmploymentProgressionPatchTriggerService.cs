@@ -4,9 +4,7 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.ServiceBus;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
 {
@@ -72,7 +70,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
             }
         }
 
-    public void SetLongitudeAndLatitude(EmploymentProgressionPatch employmentProgressionPatchRequest, Position position)
+        public void SetLongitudeAndLatitude(EmploymentProgressionPatch employmentProgressionPatchRequest, Position position)
         {
             if (position == null || employmentProgressionPatchRequest == null)
             {
