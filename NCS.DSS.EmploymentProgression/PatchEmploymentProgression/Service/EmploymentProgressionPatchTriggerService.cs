@@ -11,10 +11,10 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
     public class EmploymentProgressionPatchTriggerService : IEmploymentProgressionPatchTriggerService
     {
         private readonly IJsonHelper _jsonHelper;
-        private readonly IDocumentDBProvider _documentDbProvider;
-        private readonly IServiceBusClient _serviceBusClient;
+        private readonly ICosmosDBProvider _documentDbProvider;
+        private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionPatchTriggerService(IJsonHelper jsonHelper, ICosmosDBProvider documentDbProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
             _jsonHelper = jsonHelper;
             _documentDbProvider = documentDbProvider;
@@ -46,9 +46,9 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
             await _serviceBusClient.SendPatchMessageAsync(employmentProgression, customerId, reqUrl, correlationId, log);
         }
 
-        public bool DoesEmploymentProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesEmploymentProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
+            return await _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
         }
 
         public async Task<bool> DoesCustomerExist(Guid customerId)

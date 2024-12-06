@@ -1,4 +1,3 @@
-using DFC.Common.Standard.GuidHelper;
 using DFC.GeoCoding.Standard.AzureMaps.Model;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
@@ -6,8 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmployeeProgression.GeoCoding;
+using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Validators;
@@ -25,33 +24,30 @@ namespace NCS.DSS.EmploymentProgression.Function
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IEmploymentProgressionPatchTriggerService _employmentProgressionPatchTriggerService;
         private readonly IConvertToDynamic<Models.EmploymentProgression> _convertToDynamic;
-        private readonly IResourceHelper _resourceHelper;
+        private readonly ICosmosDBProvider _cosmosDbProvider;
         private readonly IValidate _validate;
-        private readonly ILogger<EmploymentProgressionPatchTrigger> _loggerHelper;
+        private readonly ILogger<EmploymentProgressionPatchTrigger> _logger;
         private readonly IGeoCodingService _geoCodingService;
-        private readonly IGuidHelper _guidHelper;
         private readonly IEmploymentProgressionPatchService _employmentProgressionPatchService;
 
         public EmploymentProgressionPatchTrigger(
             IHttpRequestHelper httpRequestHelper,
             IEmploymentProgressionPatchTriggerService employmentProgressionPatchTriggerService,
-            IConvertToDynamic<Models.EmploymentProgression> convertToDynamic,
-            IResourceHelper resourceHelper,
+            IConvertToDynamic<Models.EmploymentProgression> convertToDynamic, 
+            ICosmosDBProvider cosmosDbProvider,
             IValidate validate,
-            ILogger<EmploymentProgressionPatchTrigger> loggerHelper,
+            ILogger<EmploymentProgressionPatchTrigger> logger,
             IGeoCodingService geoCodingService,
-            IGuidHelper guidHelper,
             IEmploymentProgressionPatchService employmentProgressionPatchService
             )
         {
             _httpRequestHelper = httpRequestHelper;
             _employmentProgressionPatchTriggerService = employmentProgressionPatchTriggerService;
             _convertToDynamic = convertToDynamic;
-            _resourceHelper = resourceHelper;
+            _cosmosDbProvider = cosmosDbProvider;
             _validate = validate;
-            _loggerHelper = loggerHelper;
+            _logger = logger;
             _geoCodingService = geoCodingService;
-            _guidHelper = guidHelper;
             _employmentProgressionPatchService = employmentProgressionPatchService;
         }
 
@@ -71,16 +67,16 @@ namespace NCS.DSS.EmploymentProgression.Function
                                                 )]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RouteValue)] HttpRequest req, string customerId, string EmploymentProgressionId)
         {
-            _loggerHelper.LogInformation("Started EmploymentProgressionPatchTrigger");
+            var functionName = nameof(EmploymentProgressionPatchTrigger);
+
+            _logger.LogInformation("Function {FunctionName} has been invoked", functionName);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
-            var correlationGuid = _guidHelper.ValidateAndGetGuid(correlationId);
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to locate 'TouchpointId' in request header.");
+                _logger.LogWarning("{CorrelationId} Unable to locate 'TouchpointId' in request header.",correlationId);
 
                 return new BadRequestResult();
             }
@@ -88,24 +84,21 @@ namespace NCS.DSS.EmploymentProgression.Function
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to locate 'apimurl' in request header");
+                _logger.LogWarning("{CorrelationId} Unable to locate 'apimurl' in request header",correlationId);
                 return new BadRequestResult();
             }
 
-            if (!_guidHelper.IsValidGuid(customerId))
+            if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to parse 'customerId' to a Guid: {customerId}");
+                _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}",correlationId,customerId);
                 return new BadRequestObjectResult(customerId);
             }
-            var customerGuid = _guidHelper.ValidateAndGetGuid(customerId);
-
-            if (!_guidHelper.IsValidGuid(EmploymentProgressionId))
+            if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to parse 'employmentProgressionId' to a Guid: {EmploymentProgressionId}");
+                _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressionId' to a Guid: {EmploymentProgressionId}",correlationId,EmploymentProgressionId);
                 return new BadRequestObjectResult(EmploymentProgressionId);
             }
 
-            var employmentProgressionGuid = _guidHelper.ValidateAndGetGuid(EmploymentProgressionId);
             EmploymentProgressionPatch employmentProgressionPatchRequest;
 
             try
@@ -114,37 +107,38 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
             catch (Exception ex)
             {
-                _loggerHelper.LogError($"[{correlationGuid}] Unable to retrieve body from req", ex);
-                return new UnprocessableEntityObjectResult(_convertToDynamic.ExcludeProperty(ex, ["TargetSite"]));
+                var eObject = _convertToDynamic.ExcludeProperty(ex, ["TargetSite"]);
+                _logger.LogError("{CorrelationId} Unable to retrieve body from req. Exception {Exception}",correlationId,eObject);
+                return new UnprocessableEntityObjectResult(eObject);
             }
 
             if (employmentProgressionPatchRequest == null)
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] A patch body was not provided. CorrelationId: {correlationGuid}.");
+                _logger.LogWarning("{CorrelationId} A patch body was not provided.",correlationId);
                 return new NoContentResult();
             }
 
             _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatchRequest, employmentProgressionGuid, touchpointId);
             _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);
 
-            if (await _resourceHelper.IsCustomerReadOnly(customerGuid))
+            if (await _cosmosDbProvider.DoesCustomerHaveATerminationDate(customerGuid))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Customer is readonly with customerId {customerGuid}.");
+                _logger.LogWarning("{CorrelationId} Customer is readonly with customerId {customerGuid}.",correlationId,customerGuid);
                 return new ObjectResult(customerGuid)
                 {
                     StatusCode = (int)HttpStatusCode.Forbidden
                 };
             }
 
-            if (!await _resourceHelper.DoesCustomerExist(customerGuid))
+            if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Customer with [{customerGuid}] does not exist");
+                _logger.LogWarning("{CorrelationId} Customer with [{customerGuid}] does not exist",correlationId,customerGuid);
                 return new BadRequestResult();
             }
 
-            if (!_employmentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(customerGuid))
+            if (!await _employmentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(customerGuid))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Employment progression does not exist for customerId {customerGuid}.");
+                _logger.LogWarning("{CorrelationId} Employment progression does not exist for customerId {customerGuid}.", correlationId, customerGuid);
                 return new NoContentResult();
             }
 
@@ -152,13 +146,13 @@ namespace NCS.DSS.EmploymentProgression.Function
 
             if (currentEmploymentProgressionAsJson == null)
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Employment progression does not exist for {employmentProgressionGuid}.");
+                _logger.LogWarning("{CorrelationId} Employment progression does not exist for {employmentProgressionGuid}.", correlationId, employmentProgressionGuid);
                 return new NoContentResult();
             }
 
             if (!string.IsNullOrEmpty(employmentProgressionPatchRequest.EmployerPostcode))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Attempting to get long and lat for postcode");
+                _logger.LogInformation("{CorrelationId} Attempting to get long and lat for postcode",correlationId);
                 Position position;
 
                 try
@@ -169,7 +163,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                 }
                 catch (Exception ex)
                 {
-                    _loggerHelper.LogError($"[{correlationGuid}] Unable to get long and lat for postcode: {employmentProgressionPatchRequest.EmployerPostcode}. Exception: {_convertToDynamic.ExcludeProperty(ex, ["TargetSite"])}");
+                    _logger.LogError(ex,"{CorrelationId} Unable to get long and lat for postcode: {Postcode}. Exception: {Exception}",correlationId, employmentProgressionPatchRequest.EmployerPostcode, ex.Message);
                     throw;
                 }
             }
@@ -177,7 +171,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             var patchedEmploymentProgressionAsJson = _employmentProgressionPatchService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatchRequest);
             if (patchedEmploymentProgressionAsJson == null)
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Employment progression does not exist for {employmentProgressionGuid}.");
+                _logger.LogInformation("{CorrelationId} Employment progression does not exist for {employmentProgressionGuid}.");
                 return new NoContentResult();
             }
 
@@ -188,40 +182,41 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
             catch (Exception ex)
             {
-                _loggerHelper.LogError($"[{correlationGuid}] Unable to retrieve body from req", ex);
-                _loggerHelper.LogError($"[{correlationGuid}] Excepton : {_convertToDynamic.ExcludeProperty(ex, ["TargetSite"])}");
+                var eObject = _convertToDynamic.ExcludeProperty(ex, ["TargetSite"]);
+                _logger.LogError("{CorrelationId} Unable to retrieve body from req. Excepton : {Exception}", eObject);
                 throw;
             }
 
             if (employmentProgressionValidationObject == null)
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Employment Progression Validation Object is null.");
+                _logger.LogInformation("{CorrelationId} Employment Progression Validation Object is null.");
                 return new UnprocessableEntityObjectResult(req);
             }
 
             var errors = _validate.ValidateResource(employmentProgressionValidationObject);
             if (errors != null && errors.Any())
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] validation errors with resource customerId {customerGuid}.");
+                _logger.LogInformation("{CorrelationId} validation errors with resource customerId {customerGuid}.");
                 return new UnprocessableEntityObjectResult(errors);
             }
 
             var updatedEmploymentProgression = await _employmentProgressionPatchTriggerService.UpdateCosmosAsync(patchedEmploymentProgressionAsJson, employmentProgressionGuid);
-            if (updatedEmploymentProgression != null)
+            if (updatedEmploymentProgression == null)            
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] attempting to send to service bus {employmentProgressionGuid}.");
-
-                await _employmentProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedEmploymentProgression, customerGuid, ApimURL, correlationGuid, _loggerHelper);
+                _logger.LogWarning("{CorrelationId} Failed to Update Employment Progression.",correlationId);
+                _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
+                return new NoContentResult();
             }
-
-            _loggerHelper.LogInformation("Exited EmploymentProgressionPatchTrigger");
-
-            return updatedEmploymentProgression == null ?
-            new NoContentResult() :
-            new JsonResult(_convertToDynamic.RenameProperty(updatedEmploymentProgression, "id", "EmploymentProgressionId"))
+            else
             {
-                StatusCode = (int)HttpStatusCode.OK
-            };
+                _logger.LogInformation("{CorrelationId} attempting to send to service bus {employmentProgressionGuid}.");                
+                await _employmentProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedEmploymentProgression, customerGuid, ApimURL, Guid.Parse(correlationId), _logger);
+                _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
+                return new JsonResult(_convertToDynamic.RenameProperty(updatedEmploymentProgression, "id", "EmploymentProgressionId"))
+                {
+                    StatusCode = (int)HttpStatusCode.OK
+                }; 
+            }
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿using DFC.Common.Standard.GuidHelper;
-using DFC.HTTP.Standard;
+﻿using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.Models;
 using NUnit.Framework;
@@ -22,9 +21,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private Mock<IConvertToDynamic<Models.EmploymentProgression>> _convertToDynamic;
         private Mock<IEmploymentProgressionGetByIdTriggerService> _EmploymentProgressionGetByIdTriggerService;
         private IJsonHelper _jsonHelper;
-        private Mock<IResourceHelper> _resourceHelper;
+        private Mock<ICosmosDBProvider> _cosmosDbProvider;
         private Mock<ILogger<EmploymentProgressionGetByIdTrigger>> _loggerHelper;
-        private Mock<IGuidHelper> _guidHelper;
         private Mock<ILogger> _logger;
         private HttpRequest _request;
         private Guid _validCustomerId = Guid.NewGuid();
@@ -37,11 +35,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _httpRequestHelper = new Mock<IHttpRequestHelper>();
             _EmploymentProgressionGetByIdTriggerService = new Mock<IEmploymentProgressionGetByIdTriggerService>();
             _jsonHelper = new JsonHelper(); ;
-            _resourceHelper = new Mock<IResourceHelper>();
-            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetByIdTrigger>>(); ;
-            _guidHelper = new Mock<IGuidHelper>();
+            _cosmosDbProvider = new Mock<ICosmosDBProvider>();
+            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetByIdTrigger>>(); 
             _logger = new Mock<ILogger>();
-            _function = new EmploymentProgressionGetByIdTrigger(_httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
+            _function = new EmploymentProgressionGetByIdTrigger(_httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _cosmosDbProvider.Object, _loggerHelper.Object);
             _request = (new DefaultHttpContext()).Request;
         }
 
@@ -95,13 +92,13 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction("844a6215-8413-41ba-96b0-b4cc7041ca33", "");
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestResult>());
         }
 
         [Test]
@@ -111,8 +108,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("http://aurlvalue.com");
             _EmploymentProgressionGetByIdTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _guidHelper.Setup(x => x.IsValidGuid(It.IsAny<string>())).Returns(true);
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(_validCustomerId.ToString(), _validEmploymentProgressionId.ToString());

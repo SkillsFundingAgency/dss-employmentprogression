@@ -9,10 +9,10 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 {
     public class EmploymentProgressionPostTriggerService : IEmploymentProgressionPostTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
-        private readonly IServiceBusClient _serviceBusClient;
+        private readonly ICosmosDBProvider _documentDbProvider;
+        private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionPostTriggerService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionPostTriggerService(ICosmosDBProvider documentDbProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
@@ -42,9 +42,9 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl, correlationId, log);
         }
 
-        public bool DoesEmploymentProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesEmploymentProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
+            return await _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
         }
 
         public void SetIds(Models.EmploymentProgression employmentProgression, Guid customerGuid, string touchpointId)

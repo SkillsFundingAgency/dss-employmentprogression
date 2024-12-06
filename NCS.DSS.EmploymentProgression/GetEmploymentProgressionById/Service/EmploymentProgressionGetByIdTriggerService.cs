@@ -5,10 +5,10 @@ namespace NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service
 {
     public class EmploymentProgressionGetByIdTriggerService : IEmploymentProgressionGetByIdTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
-        private readonly IServiceBusClient _serviceBusClient;
+        private readonly ICosmosDBProvider _documentDbProvider;
+        private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionGetByIdTriggerService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionGetByIdTriggerService(ICosmosDBProvider documentDbProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;

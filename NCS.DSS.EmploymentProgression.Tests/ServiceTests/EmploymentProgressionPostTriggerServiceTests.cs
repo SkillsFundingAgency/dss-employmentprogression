@@ -15,8 +15,8 @@ public class EmploymentProgressionPostTriggerServiceTests
     [SetUp]
     public void Setup()
     {
-        _sut = new EmploymentProgressionPostTriggerService(new Mock<IDocumentDBProvider>().Object,
-            new Mock<IServiceBusClient>().Object);
+        _sut = new EmploymentProgressionPostTriggerService(new Mock<ICosmosDBProvider>().Object,
+            new Mock<IEmploymentProgressionServiceBusClient>().Object);
     }
 
     [Test]

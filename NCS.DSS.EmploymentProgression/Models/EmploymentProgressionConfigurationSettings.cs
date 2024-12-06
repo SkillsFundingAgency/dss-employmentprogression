@@ -1,6 +1,6 @@
 ﻿namespace NCS.DSS.EmploymentProgression.Models
 {
-    public class ConfigurationSettings
+    public class EmploymentProgressionConfigurationSettings
     {
         public string CosmosDBConnectionString { get; set; }
         public string KeyName { get; internal set; }
