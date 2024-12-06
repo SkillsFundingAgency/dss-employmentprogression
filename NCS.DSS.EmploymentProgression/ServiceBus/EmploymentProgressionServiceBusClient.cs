@@ -17,7 +17,7 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
             _logger = logger;
         }
 
-        public async Task SendPostMessageAsync(Models.EmploymentProgression employmentProgression, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendPostMessageAsync(Models.EmploymentProgression employmentProgression, string reqUrl)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
             }            
         }
 
-        public async Task SendPatchMessageAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendPatchMessageAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl)
         {
             try
             {

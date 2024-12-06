@@ -37,9 +37,9 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl)
         {
-            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl, correlationId, log);
+            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl);
         }
 
         public async Task<bool> DoesEmploymentProgressionExistForCustomer(Guid customerId)

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NCS.DSS.EmploymentProgression.Models;
 using System.Net;
 using System.Text.Json;
 
@@ -9,20 +11,23 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
     public class CosmosDBProvider : ICosmosDBProvider
     {
         private readonly Container _container;
-        private readonly string _databaseId = Environment.GetEnvironmentVariable("DatabaseId");
-        private readonly string _containerId = Environment.GetEnvironmentVariable("CollectionId");
+        private readonly Container _customerContainer;
         private readonly ILogger<CosmosDBProvider> _logger;
-        public CosmosDBProvider(CosmosClient cosmosClient, ILogger<CosmosDBProvider> logger)
+        public CosmosDBProvider(CosmosClient cosmosClient,
+            IOptions<EmploymentProgressionConfigurationSettings> configOptions,
+            ILogger<CosmosDBProvider> logger)
         {
-            _container = cosmosClient.GetContainer(_databaseId, _containerId);
+            _container = GetContainer(cosmosClient,configOptions.Value.DatabaseId, configOptions.Value.CollectionId);
+            _customerContainer = GetContainer(cosmosClient, configOptions.Value.CustomerDatabaseId, configOptions.Value.CustomerCollectionId);
             _logger = logger;
         }
-
+        private static Container GetContainer(CosmosClient cosmosClient, string databaseId, string collectionId)
+           => cosmosClient.GetContainer(databaseId, collectionId);
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)
         {
             try
             {
-                var queryCust = _container.GetItemLinqQueryable<Models.Customer>().Where(x => x.CustomerId == customerId).ToFeedIterator();
+                var queryCust = _customerContainer.GetItemLinqQueryable<Models.Customer>().Where(x => x.CustomerId == customerId).ToFeedIterator();
 
                 while (queryCust.HasMoreResults)
                 {
@@ -46,7 +51,7 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
         {
             try
             {
-                var queryCust = _container.GetItemLinqQueryable<Models.Customer>().Where(x => x.CustomerId == customerId).ToFeedIterator();
+                var queryCust = _customerContainer.GetItemLinqQueryable<Models.Customer>().Where(x => x.CustomerId == customerId).ToFeedIterator();
 
                 while (queryCust.HasMoreResults)
                 {

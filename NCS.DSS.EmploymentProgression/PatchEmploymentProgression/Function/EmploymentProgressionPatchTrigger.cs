@@ -72,6 +72,9 @@ namespace NCS.DSS.EmploymentProgression.Function
             _logger.LogInformation("Function {FunctionName} has been invoked", functionName);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
+            if (correlationId == null) {
+                correlationId = Guid.NewGuid().ToString();
+            }
 
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
@@ -210,7 +213,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             else
             {
                 _logger.LogInformation("{CorrelationId} attempting to send to service bus {employmentProgressionGuid}.");                
-                await _employmentProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedEmploymentProgression, customerGuid, ApimURL, Guid.Parse(correlationId), _logger);
+                await _employmentProgressionPatchTriggerService.SendToServiceBusQueueAsync(updatedEmploymentProgression, customerGuid, ApimURL);
                 _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
                 return new JsonResult(_convertToDynamic.RenameProperty(updatedEmploymentProgression, "id", "EmploymentProgressionId"))
                 {
