@@ -7,7 +7,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.EmployeeProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
-using NCS.DSS.EmploymentProgression.Function;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Validators;
@@ -68,7 +67,10 @@ namespace NCS.DSS.EmploymentProgression
             _logger.LogInformation("Function {FunctionName} has been invoked", functionName);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
+            if (correlationId == null)
+            {
+                correlationId = Guid.NewGuid().ToString();
+            }
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
 
             if (string.IsNullOrEmpty(touchpointId))
@@ -169,7 +171,7 @@ namespace NCS.DSS.EmploymentProgression
             else
             {
                 _logger.LogInformation("{CorrelationId} Sending newly created Employment Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
-                await _employmentProgressionPostTriggerService.SendToServiceBusQueueAsync(employmentProgressionRequest, ApimURL, Guid.Parse(correlationId), _logger);
+                await _employmentProgressionPostTriggerService.SendToServiceBusQueueAsync(employmentProgressionRequest, ApimURL);
                 _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
                 return new JsonResult(_convertToDynamic.RenameProperty(employmentProgressionRequest, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.Created };
             }

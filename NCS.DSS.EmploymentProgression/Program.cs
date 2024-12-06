@@ -59,12 +59,13 @@ namespace NCS.DSS.EmploymentProgression
                         };
                         return new CosmosClient(settings.CosmosDBConnectionString, options);
                     });
+                    services.AddScoped<IEmploymentProgressionServiceBusClient, EmploymentProgressionServiceBusClient>();
                     services.AddSingleton(serviceProvider =>
                     {
                         var settings = serviceProvider.GetRequiredService<IOptions<EmploymentProgressionConfigurationSettings>>().Value;
                         return new ServiceBusClient(settings.ServiceBusConnectionString);
                     });
-                    services.AddTransient<IEmploymentProgressionServiceBusClient, EmploymentProgressionServiceBusClient>();
+                    
                     services.AddTransient<IValidate, Validate>();
                     services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
                     services.AddScoped<IGeoCodingService, GeoCodingService>();
