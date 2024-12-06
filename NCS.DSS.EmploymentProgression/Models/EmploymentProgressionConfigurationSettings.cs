@@ -12,5 +12,9 @@
         public string AzureMapApiVersion { get; set; }
         public string AzureMapSubscriptionKey { get; set; }
         public string AzureCountrySet { get; set; }
+        public string DatabaseId { get; internal set; }
+        public string CollectionId { get; internal set; }
+        public string CustomerDatabaseId { get; internal set; }
+        public string CustomerCollectionId { get; internal set; }
     }
 }
