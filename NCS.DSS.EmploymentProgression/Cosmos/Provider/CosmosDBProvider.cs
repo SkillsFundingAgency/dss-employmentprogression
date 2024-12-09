@@ -27,7 +27,7 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
         {
             try
             {
-                var queryCust = _customerContainer.GetItemLinqQueryable<Models.Customer>().Where(x => x.CustomerId == customerId).ToFeedIterator();
+                var queryCust = _customerContainer.GetItemLinqQueryable<Models.Customer>().Where(x => x.id == customerId).ToFeedIterator();
 
                 while (queryCust.HasMoreResults)
                 {
@@ -51,7 +51,7 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
         {
             try
             {
-                var queryCust = _customerContainer.GetItemLinqQueryable<Models.Customer>().Where(x => x.CustomerId == customerId).ToFeedIterator();
+                var queryCust = _customerContainer.GetItemLinqQueryable<Models.Customer>().Where(x => x.id == customerId).ToFeedIterator();
 
                 while (queryCust.HasMoreResults)
                 {
