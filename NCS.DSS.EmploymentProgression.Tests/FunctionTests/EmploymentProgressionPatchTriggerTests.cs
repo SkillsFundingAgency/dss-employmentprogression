@@ -135,6 +135,9 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(InvalidEmploymentProgressionPatch));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);

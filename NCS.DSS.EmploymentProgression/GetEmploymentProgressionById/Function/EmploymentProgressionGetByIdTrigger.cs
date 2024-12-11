@@ -61,39 +61,45 @@ namespace NCS.DSS.EmploymentProgression
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogError("{CorrelationId} Unable to locate 'TouchpointId' in request header.", correlationId);
+                _logger.LogWarning("{CorrelationId} Unable to locate 'TouchpointId' in request header.", correlationId);
                 return new BadRequestResult();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _logger.LogError("{CorrelationId} Unable to locate 'ApimUrl' in request header.", correlationId);
+                _logger.LogWarning("{CorrelationId} Unable to locate 'ApimUrl' in request header.", correlationId);
                 return new BadRequestResult();
             }
+
+            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogError("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId,customerId);
+                _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId,customerId);
                 return new BadRequestObjectResult(customerId);
             }
-
-            if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
+            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+            var isExist = await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid);
+            if (!isExist)
             {
-                _logger.LogError("{CorrelationId} Customer with {CustomerGuid} does not exist", correlationId,customerGuid);
+                _logger.LogWarning("{CorrelationId} Customer with {CustomerGuid} does not exist", correlationId, customerGuid);
                 return new BadRequestResult();
+            }
+            else {
+                _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
             }
 
             if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
             {
-                _logger.LogError("{CorrelationId} Unable to parse 'employmentProgressioniD' to a Guid: {EmploymentProgressionId}", correlationId,EmploymentProgressionId);
+                _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressioniD' to a Guid: {EmploymentProgressionId}", correlationId,EmploymentProgressionId);
                 return new BadRequestObjectResult(EmploymentProgressionId);
             }
             var employmentProgression = await _employmentProgressionGetByIdTriggerService.GetEmploymentProgressionForCustomerAsync(customerGuid, employmentProgressionGuid);
             
             if( employmentProgression == null)
             {
-                _logger.LogError("{CorrelationId} Employment Progress with {EmploymentProgressionId} does not exist", correlationId, employmentProgressionGuid);
+                _logger.LogWarning("{CorrelationId} Employment Progress with {EmploymentProgressionId} does not exist", correlationId, employmentProgressionGuid);
                 return new NoContentResult();
             }
             _logger.LogInformation("Function {FunctionName} has finished invoking", functionName); 

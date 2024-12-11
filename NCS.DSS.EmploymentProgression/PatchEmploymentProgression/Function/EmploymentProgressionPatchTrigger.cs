@@ -91,6 +91,8 @@ namespace NCS.DSS.EmploymentProgression.Function
                 return new BadRequestResult();
             }
 
+            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
+
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}",correlationId,customerId);
@@ -101,30 +103,19 @@ namespace NCS.DSS.EmploymentProgression.Function
                 _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressionId' to a Guid: {EmploymentProgressionId}",correlationId,EmploymentProgressionId);
                 return new BadRequestObjectResult(EmploymentProgressionId);
             }
-
-            EmploymentProgressionPatch employmentProgressionPatchRequest;
-
-            try
+            
+            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+            if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
             {
-                employmentProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(req);
-            }
-            catch (Exception ex)
-            {
-                var eObject = _convertToDynamic.ExcludeProperty(ex, ["TargetSite"]);
-                _logger.LogError("{CorrelationId} Unable to retrieve body from req. Exception {Exception}",correlationId,eObject);
-                return new UnprocessableEntityObjectResult(eObject);
+                _logger.LogWarning("{CorrelationId} Customer with [{customerGuid}] does not exist", correlationId, customerGuid);
+                return new BadRequestResult();
             }
 
-            if (employmentProgressionPatchRequest == null)
-            {
-                _logger.LogWarning("{CorrelationId} A patch body was not provided.",correlationId);
-                return new NoContentResult();
-            }
+            _logger.LogInformation("Attempting to see if customer have a termination date (read only) or not. Customer GUID: {CustomerGuid}", customerGuid);
 
-            _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatchRequest, employmentProgressionGuid, touchpointId);
-            _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);
+            var isCustomerReadOnly = await _cosmosDbProvider.DoesCustomerHaveATerminationDate(customerGuid);
 
-            if (await _cosmosDbProvider.DoesCustomerHaveATerminationDate(customerGuid))
+            if (isCustomerReadOnly)
             {
                 _logger.LogWarning("{CorrelationId} Customer is readonly with customerId {customerGuid}.",correlationId,customerGuid);
                 return new ObjectResult(customerGuid)
@@ -133,17 +124,44 @@ namespace NCS.DSS.EmploymentProgression.Function
                 };
             }
 
-            if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
+            EmploymentProgressionPatch employmentProgressionPatchRequest;
+            _logger.LogInformation("{CorrelationId} Attempting to get resource from body of the request", correlationId);
+            try
             {
-                _logger.LogWarning("{CorrelationId} Customer with [{customerGuid}] does not exist",correlationId,customerGuid);
-                return new BadRequestResult();
+                employmentProgressionPatchRequest = await _httpRequestHelper.GetResourceFromRequest<EmploymentProgressionPatch>(req);
             }
+            catch (Exception ex)
+            {
+                var eObject = _convertToDynamic.ExcludeProperty(ex, ["TargetSite"]);
+                _logger.LogError("{CorrelationId} Unable to retrieve body from req. Exception {Exception}", correlationId, eObject);
+                return new UnprocessableEntityObjectResult(eObject);
+            }
+
+            if (employmentProgressionPatchRequest == null)
+            {
+                _logger.LogWarning("{CorrelationId} A patch body was not provided.", correlationId);
+                return new NoContentResult();
+            }
+
+            _logger.LogInformation("{CorrelationId} Attempting to set ids for Employment Progression Request. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
+            _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatchRequest, employmentProgressionGuid, touchpointId);
+
+            _logger.LogInformation("{CorrelationId} Attempting to set defaults for Employment Progression Request. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
+            _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);
+
+            _logger.LogInformation("{CorrelationId} Attempting to Check Employment Progression Exists for Customer. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
 
             if (!await _employmentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Employment progression does not exist for customerId {customerGuid}.", correlationId, customerGuid);
                 return new NoContentResult();
             }
+            else
+            {
+                _logger.LogInformation("{CorrelationId} Employment progression exist for customerId {customerGuid}.", correlationId, customerGuid);
+            }
+
+            _logger.LogInformation("{CorrelationId} Attempting to Get Employment Progression with {ID} for Customer. Customer GUID: {CustomerGuid}", correlationId,employmentProgressionGuid, customerGuid);
 
             var currentEmploymentProgressionAsJson = await _employmentProgressionPatchTriggerService.GetEmploymentProgressionForCustomerToPatchAsync(customerGuid, employmentProgressionGuid);
 
@@ -151,6 +169,10 @@ namespace NCS.DSS.EmploymentProgression.Function
             {
                 _logger.LogWarning("{CorrelationId} Employment progression does not exist for {employmentProgressionGuid}.", correlationId, employmentProgressionGuid);
                 return new NoContentResult();
+            }
+            else
+            {
+                _logger.LogInformation("{CorrelationId} Employment progression found with {ID} for customerId {customerGuid}.", correlationId,employmentProgressionGuid, customerGuid);
             }
 
             if (!string.IsNullOrEmpty(employmentProgressionPatchRequest.EmployerPostcode))
@@ -171,12 +193,16 @@ namespace NCS.DSS.EmploymentProgression.Function
                 }
             }
 
+            _logger.LogInformation("{CorrelationId} Attempting to Build Patch Employment Progression request with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
+
             var patchedEmploymentProgressionAsJson = _employmentProgressionPatchService.PatchEmploymentProgressionAsync(currentEmploymentProgressionAsJson, employmentProgressionPatchRequest);
             if (patchedEmploymentProgressionAsJson == null)
             {
                 _logger.LogInformation("{CorrelationId} Employment progression does not exist for {employmentProgressionGuid}.");
                 return new NoContentResult();
             }
+
+            _logger.LogInformation("{CorrelationId} Attempting to Deserialize Patch Employment Progression request object with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
 
             Models.EmploymentProgression employmentProgressionValidationObject;
             try
@@ -189,12 +215,13 @@ namespace NCS.DSS.EmploymentProgression.Function
                 _logger.LogError("{CorrelationId} Unable to retrieve body from req. Excepton : {Exception}", eObject);
                 throw;
             }
-
+            
             if (employmentProgressionValidationObject == null)
             {
                 _logger.LogInformation("{CorrelationId} Employment Progression Validation Object is null.");
                 return new UnprocessableEntityObjectResult(req);
             }
+            _logger.LogInformation("{CorrelationId} Attempting to Validate Patch Employment Progression request object with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
 
             var errors = _validate.ValidateResource(employmentProgressionValidationObject);
             if (errors != null && errors.Any())
@@ -202,6 +229,8 @@ namespace NCS.DSS.EmploymentProgression.Function
                 _logger.LogInformation("{CorrelationId} validation errors with resource customerId {customerGuid}.");
                 return new UnprocessableEntityObjectResult(errors);
             }
+
+            _logger.LogInformation("{CorrelationId} Attempting to Update Employment Progression with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
 
             var updatedEmploymentProgression = await _employmentProgressionPatchTriggerService.UpdateCosmosAsync(patchedEmploymentProgressionAsJson, employmentProgressionGuid);
             if (updatedEmploymentProgression == null)            

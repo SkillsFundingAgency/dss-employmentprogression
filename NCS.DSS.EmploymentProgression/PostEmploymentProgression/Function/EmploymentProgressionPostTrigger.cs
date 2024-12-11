@@ -86,17 +86,23 @@ namespace NCS.DSS.EmploymentProgression
                 return new BadRequestResult();
             }
 
+            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
+
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId, customerId);
                 return new BadRequestObjectResult(customerId);
             }
 
+            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+
             if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Customer does not exist");
                 return new NoContentResult();
             }
+
+            _logger.LogInformation("Attempting to see if customer have a termination date (read only) or not. Customer GUID: {CustomerGuid}", customerGuid);
 
             var isCustomerReadOnly = await _cosmosDbProvider.DoesCustomerHaveATerminationDate(customerGuid);
 
@@ -105,6 +111,7 @@ namespace NCS.DSS.EmploymentProgression
                 _logger.LogWarning("{CorrelationId} Customer is readonly with customerId {customerGuid}.", correlationId, customerGuid);
                 return new ObjectResult(customerGuid) { StatusCode = (int)HttpStatusCode.Forbidden };
             }
+            _logger.LogInformation("Attempting to see if customer have an Employment Progression Record or not. Customer GUID: {CustomerGuid}", customerGuid);
 
             var doesEmploymentProgressionExist = await _employmentProgressionPostTriggerService.DoesEmploymentProgressionExistForCustomer(customerGuid);
             if (doesEmploymentProgressionExist)
@@ -113,7 +120,7 @@ namespace NCS.DSS.EmploymentProgression
                 return new ConflictResult();
             }
 
-            _logger.LogInformation("{CorrelationId} Attempt to get resource from body of the request", correlationId);
+            _logger.LogInformation("{CorrelationId} Attempting to get resource from body of the request", correlationId);
 
             Models.EmploymentProgression employmentProgressionRequest;
             try
@@ -131,9 +138,13 @@ namespace NCS.DSS.EmploymentProgression
                 _logger.LogWarning("{CorrelationId} Employment progression details does not exist for customerId {customerGuid}", correlationId, customerGuid);
                 return new UnprocessableEntityResult();
             }
-
+            _logger.LogInformation("Attempting to set ids for Employment Progression Request. Customer GUID: {CustomerGuid}", customerGuid);
             _employmentProgressionPostTriggerService.SetIds(employmentProgressionRequest, customerGuid, touchpointId);
+
+            _logger.LogInformation("Attempting to set defaults for Employment Progression Request. Customer GUID: {CustomerGuid}", customerGuid);
             _employmentProgressionPostTriggerService.SetDefaults(employmentProgressionRequest, touchpointId);
+
+            _logger.LogInformation("Attempting to validate Employment Progression Request. Customer GUID: {CustomerGuid}", customerGuid);
 
             var errors = _validate.ValidateResource(employmentProgressionRequest);
 
@@ -148,8 +159,8 @@ namespace NCS.DSS.EmploymentProgression
                 _logger.LogInformation("{CorrelationId} Attempting to get long and lat for postcode", correlationId);
                 Position position;
 
-                try
-                {
+                try 
+                { 
                     var employerPostcode = employmentProgressionRequest.EmployerPostcode.Replace(" ", string.Empty);
                     position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
                     _employmentProgressionPostTriggerService.SetLongitudeAndLatitude(employmentProgressionRequest, position);
@@ -161,6 +172,7 @@ namespace NCS.DSS.EmploymentProgression
                 }
             }
 
+            _logger.LogInformation("Attempting to Create Employment Progression Request. Customer GUID: {CustomerGuid}", customerGuid);
             var employmentProgressionResult = await _employmentProgressionPostTriggerService.CreateEmploymentProgressionAsync(employmentProgressionRequest);
             if (employmentProgressionResult == null)
             {
@@ -170,7 +182,9 @@ namespace NCS.DSS.EmploymentProgression
             }
             else
             {
-                _logger.LogInformation("{CorrelationId} Sending newly created Employment Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
+                _logger.LogInformation("{CorrelationId} Successfully Created Employment Progression record with {ID} for customerId {customerGuid}", correlationId,employmentProgressionRequest.EmploymentProgressionId, customerGuid);
+
+                _logger.LogInformation("{CorrelationId} Attempting to Send newly created Employment Progression to service bus for customerId {customerGuid}, correlationId {correlationGuid}.");
                 await _employmentProgressionPostTriggerService.SendToServiceBusQueueAsync(employmentProgressionRequest, ApimURL);
                 _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
                 return new JsonResult(_convertToDynamic.RenameProperty(employmentProgressionRequest, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.Created };

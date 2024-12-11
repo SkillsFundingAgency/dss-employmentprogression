@@ -69,17 +69,26 @@ namespace NCS.DSS.EmploymentProgression
                 return new BadRequestResult();
             }
 
+            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
+
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId, customerId);
                 return new BadRequestObjectResult(customerId);
             }
-
-            if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
+            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+            var isExist = await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid);
+            if (!isExist)
             {
-                _logger.LogWarning("{CorrelationId} Customer {customerGuid} does not exist",correlationId,customerGuid);
+                _logger.LogWarning("{CorrelationId} Customer {customerGuid} does not exist", correlationId, customerGuid);
                 return new NoContentResult();
             }
+            else
+            {
+                _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
+            }
+
+            _logger.LogInformation("Attempting to Get Employment Progression. Customer GUID: {CustomerGuid}", customerGuid);
 
             var employmentProgression = await _EmploymentProgressionsGetTriggerService.GetEmploymentProgressionsForCustomerAsync(customerGuid);
             if (employmentProgression == null)

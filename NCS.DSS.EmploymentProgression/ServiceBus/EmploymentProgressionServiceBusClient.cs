@@ -9,7 +9,6 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
     {
         private readonly ILogger<EmploymentProgressionServiceBusClient> _logger;
         public readonly string QueueName = Environment.GetEnvironmentVariable("QueueName");
-        public readonly string ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString");
         private readonly ServiceBusClient _serviceBusClient;
         public EmploymentProgressionServiceBusClient(ServiceBusClient serviceBusClient, ILogger<EmploymentProgressionServiceBusClient> logger)
         {

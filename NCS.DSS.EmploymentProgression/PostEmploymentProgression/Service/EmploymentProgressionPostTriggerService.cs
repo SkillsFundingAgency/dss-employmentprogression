@@ -9,12 +9,12 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 {
     public class EmploymentProgressionPostTriggerService : IEmploymentProgressionPostTriggerService
     {
-        private readonly ICosmosDBProvider _documentDbProvider;
+        private readonly ICosmosDBProvider _cosmosDbProvider;
         private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
         public EmploymentProgressionPostTriggerService(ICosmosDBProvider documentDbProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
-            _documentDbProvider = documentDbProvider;
+            _cosmosDbProvider = documentDbProvider;
             _serviceBusClient = serviceBusClient;
         }
 
@@ -32,7 +32,7 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
                 employmentProgression.LastModifiedDate = DateTime.UtcNow;
             }
 
-            var response = await _documentDbProvider.CreateEmploymentProgressionAsync(employmentProgression);
+            var response = await _cosmosDbProvider.CreateEmploymentProgressionAsync(employmentProgression);
 
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
         }
@@ -44,7 +44,7 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 
         public async Task<bool> DoesEmploymentProgressionExistForCustomer(Guid customerId)
         {
-            return await _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
+            return await _cosmosDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
         }
 
         public void SetIds(Models.EmploymentProgression employmentProgression, Guid customerGuid, string touchpointId)

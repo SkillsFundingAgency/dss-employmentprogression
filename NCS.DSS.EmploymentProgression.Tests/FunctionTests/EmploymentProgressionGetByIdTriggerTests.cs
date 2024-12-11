@@ -1,5 +1,4 @@
 ﻿using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -20,10 +19,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private Mock<IHttpRequestHelper> _httpRequestHelper;
         private Mock<IConvertToDynamic<Models.EmploymentProgression>> _convertToDynamic;
         private Mock<IEmploymentProgressionGetByIdTriggerService> _EmploymentProgressionGetByIdTriggerService;
-        private IJsonHelper _jsonHelper;
         private Mock<ICosmosDBProvider> _cosmosDbProvider;
-        private Mock<ILogger<EmploymentProgressionGetByIdTrigger>> _loggerHelper;
-        private Mock<ILogger> _logger;
+        private Mock<ILogger<EmploymentProgressionGetByIdTrigger>> _logger;
         private HttpRequest _request;
         private Guid _validCustomerId = Guid.NewGuid();
         private Guid _validEmploymentProgressionId = Guid.NewGuid();
@@ -34,11 +31,9 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _convertToDynamic = new Mock<IConvertToDynamic<Models.EmploymentProgression>>();
             _httpRequestHelper = new Mock<IHttpRequestHelper>();
             _EmploymentProgressionGetByIdTriggerService = new Mock<IEmploymentProgressionGetByIdTriggerService>();
-            _jsonHelper = new JsonHelper(); ;
             _cosmosDbProvider = new Mock<ICosmosDBProvider>();
-            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetByIdTrigger>>(); 
-            _logger = new Mock<ILogger>();
-            _function = new EmploymentProgressionGetByIdTrigger(_httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _cosmosDbProvider.Object, _loggerHelper.Object);
+            _logger = new Mock<ILogger<EmploymentProgressionGetByIdTrigger>>(); 
+            _function = new EmploymentProgressionGetByIdTrigger(_httpRequestHelper.Object, _EmploymentProgressionGetByIdTriggerService.Object, _convertToDynamic.Object, _cosmosDbProvider.Object, _logger.Object);
             _request = (new DefaultHttpContext()).Request;
         }
 

@@ -176,17 +176,17 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                 var response = await _container.ReplaceItemAsync(empProg, employmentProgressionId.ToString());
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    _logger.LogInformation("Advisor Detail Record Updated in Cosmos DB for {EmploymentProgressionId}", empProg.EmploymentProgressionId);
+                    _logger.LogInformation("Employment Progression Record Updated in Cosmos DB for {EmploymentProgressionId}", empProg.EmploymentProgressionId);
                 }
                 else
                 {
-                    _logger.LogError("Failed and returned {StatusCode} to Update Advisor Detail Record in Cosmos DB for {EmploymentProgressionId}", response.StatusCode, empProg.EmploymentProgressionId);
+                    _logger.LogError("Failed and returned {StatusCode} to Update Employment Progression Record in Cosmos DB for {EmploymentProgressionId}", response.StatusCode, empProg.EmploymentProgressionId);
                 }
                 return response;
             }
             catch (CosmosException ce)
             {
-                _logger.LogError(ce, "Failed to Update Advisor Detail Record in Cosmos DB {EmploymentProgressionId}. Exception {Exception}.", employmentProgressionId, ce.Message);
+                _logger.LogError(ce, "Failed to Update Employment Progression Record in Cosmos DB {EmploymentProgressionId}. Exception {Exception}.", employmentProgressionId, ce.Message);
                 throw;
             }
         }
