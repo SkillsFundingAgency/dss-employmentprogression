@@ -153,7 +153,7 @@ namespace NCS.DSS.EmploymentProgression.Function
 
             var errors = _validate.ValidateResource(employmentProgressionPatchRequest);
 
-            if (errors.Any())
+            if (errors != null && errors.Count != 0)
             {
                 _logger.LogWarning("{CorrelationId} validation errors with resource", correlationId);
                 return new UnprocessableEntityObjectResult(errors);

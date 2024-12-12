@@ -215,7 +215,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _employmentProgressionPatchTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult<string>(null));
-
+           
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
