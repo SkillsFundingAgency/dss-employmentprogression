@@ -86,13 +86,13 @@ namespace NCS.DSS.EmploymentProgression
                 return new BadRequestResult();
             }
 
-            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
-
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId, customerId);
                 return new BadRequestObjectResult(customerId);
             }
+
+            _logger.LogInformation("{CorrelationId} Input validation has succeeded.", correlationId);
 
             _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
 
@@ -154,6 +154,8 @@ namespace NCS.DSS.EmploymentProgression
                 return new UnprocessableEntityObjectResult(errors);
             }
 
+            _logger.LogInformation("Employment Progression Request validation has succeeded. Customer GUID: {CustomerGuid}", customerGuid);
+
             if (!string.IsNullOrEmpty(employmentProgressionRequest.EmployerPostcode))
             {
                 _logger.LogInformation("{CorrelationId} Attempting to get long and lat for postcode", correlationId);
@@ -164,6 +166,7 @@ namespace NCS.DSS.EmploymentProgression
                     var employerPostcode = employmentProgressionRequest.EmployerPostcode.Replace(" ", string.Empty);
                     position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
                     _employmentProgressionPostTriggerService.SetLongitudeAndLatitude(employmentProgressionRequest, position);
+                    _logger.LogInformation("{CorrelationId} Successfully retrieved long and lat for postcode", correlationId);
 
                 }
                 catch (Exception e)

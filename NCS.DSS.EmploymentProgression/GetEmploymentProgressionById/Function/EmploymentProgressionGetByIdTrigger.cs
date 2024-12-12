@@ -72,14 +72,21 @@ namespace NCS.DSS.EmploymentProgression
                 return new BadRequestResult();
             }
 
-            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
-
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId,customerId);
                 return new BadRequestObjectResult(customerId);
             }
+            if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
+            {
+                _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressioniD' to a Guid: {EmploymentProgressionId}", correlationId, EmploymentProgressionId);
+                return new BadRequestObjectResult(EmploymentProgressionId);
+            }
+
+            _logger.LogInformation("{CorrelationId} Input validation has succeeded.", correlationId);
+
             _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+
             var isExist = await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid);
             if (!isExist)
             {
@@ -90,11 +97,6 @@ namespace NCS.DSS.EmploymentProgression
                 _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
             }
 
-            if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
-            {
-                _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressioniD' to a Guid: {EmploymentProgressionId}", correlationId,EmploymentProgressionId);
-                return new BadRequestObjectResult(EmploymentProgressionId);
-            }
             var employmentProgression = await _employmentProgressionGetByIdTriggerService.GetEmploymentProgressionForCustomerAsync(customerGuid, employmentProgressionGuid);
             
             if( employmentProgression == null)

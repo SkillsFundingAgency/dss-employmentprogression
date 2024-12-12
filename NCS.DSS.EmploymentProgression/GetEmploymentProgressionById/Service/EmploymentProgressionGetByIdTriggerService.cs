@@ -8,9 +8,9 @@ namespace NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service
         private readonly ICosmosDBProvider _cosmosDbProvider;
         private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionGetByIdTriggerService(ICosmosDBProvider documentDbProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
+        public EmploymentProgressionGetByIdTriggerService(ICosmosDBProvider cosmosDBProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
-            _cosmosDbProvider = documentDbProvider;
+            _cosmosDbProvider = cosmosDBProvider;
             _serviceBusClient = serviceBusClient;
         }
 

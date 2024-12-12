@@ -89,9 +89,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             {
                 _logger.LogWarning("{CorrelationId} Unable to locate 'apimurl' in request header",correlationId);
                 return new BadRequestResult();
-            }
-
-            _logger.LogInformation("Header validation has succeeded. Touchpoint ID: {TouchpointId}", touchpointId);
+            }           
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
@@ -103,7 +101,9 @@ namespace NCS.DSS.EmploymentProgression.Function
                 _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressionId' to a Guid: {EmploymentProgressionId}",correlationId,EmploymentProgressionId);
                 return new BadRequestObjectResult(EmploymentProgressionId);
             }
-            
+
+            _logger.LogInformation("{CorrelationId} Input validation has succeeded.", correlationId);
+
             _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
             if (!await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid))
             {
@@ -149,6 +149,19 @@ namespace NCS.DSS.EmploymentProgression.Function
             _logger.LogInformation("{CorrelationId} Attempting to set defaults for Employment Progression Request. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
             _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);
 
+            _logger.LogInformation("Attempting to validate Employment Progression Request. Customer GUID: {CustomerGuid}", customerGuid);
+
+            var errors = _validate.ValidateResource(employmentProgressionPatchRequest);
+
+            if (errors.Any())
+            {
+                _logger.LogWarning("{CorrelationId} validation errors with resource", correlationId);
+                return new UnprocessableEntityObjectResult(errors);
+            }
+
+            _logger.LogInformation("Employment Progression Request validation has succeeded. Customer GUID: {CustomerGuid}", customerGuid);
+
+
             _logger.LogInformation("{CorrelationId} Attempting to Check Employment Progression Exists for Customer. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
 
             if (!await _employmentProgressionPatchTriggerService.DoesEmploymentProgressionExistForCustomer(customerGuid))
@@ -185,6 +198,7 @@ namespace NCS.DSS.EmploymentProgression.Function
                     var employerPostcode = employmentProgressionPatchRequest.EmployerPostcode.Replace(" ", string.Empty);
                     position = await _geoCodingService.GetPositionForPostcodeAsync(employerPostcode);
                     _employmentProgressionPatchTriggerService.SetLongitudeAndLatitude(employmentProgressionPatchRequest, position);
+                    _logger.LogInformation("{CorrelationId} Successfully retrieved long and lat for postcode", correlationId);
                 }
                 catch (Exception ex)
                 {
@@ -223,8 +237,8 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
             _logger.LogInformation("{CorrelationId} Attempting to Validate Patch Employment Progression request object with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
 
-            var errors = _validate.ValidateResource(employmentProgressionValidationObject);
-            if (errors != null && errors.Any())
+            var errorsList = _validate.ValidateResource(employmentProgressionValidationObject);
+            if (errorsList != null && errorsList.Any())
             {
                 _logger.LogInformation("{CorrelationId} validation errors with resource customerId {customerGuid}.");
                 return new UnprocessableEntityObjectResult(errors);
