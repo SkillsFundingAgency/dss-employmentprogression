@@ -97,6 +97,7 @@ namespace NCS.DSS.EmploymentProgression
                 _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
             }
 
+            _logger.LogInformation("{CorrelationId} Attempting to Get Employment Progression for ID {employmentProgressionGuid}. Customer GUID: {CustomerGuid}",correlationId, employmentProgressionGuid, customerGuid);
             var employmentProgression = await _employmentProgressionGetByIdTriggerService.GetEmploymentProgressionForCustomerAsync(customerGuid, employmentProgressionGuid);
             
             if( employmentProgression == null)
@@ -104,6 +105,9 @@ namespace NCS.DSS.EmploymentProgression
                 _logger.LogWarning("{CorrelationId} Employment Progress with {EmploymentProgressionId} does not exist", correlationId, employmentProgressionGuid);
                 return new NoContentResult();
             }
+
+            _logger.LogInformation("{CorrelationId} Successfully Retrieved Employment Progression for ID {employmentProgressionGuid}. Customer GUID: {CustomerGuid}", correlationId, employmentProgressionGuid, customerGuid);
+
             _logger.LogInformation("Function {FunctionName} has finished invoking", functionName); 
             return new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.OK };
         }
