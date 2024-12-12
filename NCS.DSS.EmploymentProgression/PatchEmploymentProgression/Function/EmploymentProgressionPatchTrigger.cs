@@ -147,20 +147,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             _employmentProgressionPatchTriggerService.SetIds(employmentProgressionPatchRequest, employmentProgressionGuid, touchpointId);
 
             _logger.LogInformation("{CorrelationId} Attempting to set defaults for Employment Progression Request. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
-            _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);
-
-            _logger.LogInformation("Attempting to validate Employment Progression Request. Customer GUID: {CustomerGuid}", customerGuid);
-
-            var errors = _validate.ValidateResource(employmentProgressionPatchRequest);
-
-            if (errors != null && errors.Count != 0)
-            {
-                _logger.LogWarning("{CorrelationId} validation errors with resource", correlationId);
-                return new UnprocessableEntityObjectResult(errors);
-            }
-
-            _logger.LogInformation("Employment Progression Request validation has succeeded. Customer GUID: {CustomerGuid}", customerGuid);
-
+            _employmentProgressionPatchTriggerService.SetDefaults(employmentProgressionPatchRequest);            
 
             _logger.LogInformation("{CorrelationId} Attempting to Check Employment Progression Exists for Customer. Customer GUID: {CustomerGuid}", correlationId, customerGuid);
 
@@ -238,10 +225,10 @@ namespace NCS.DSS.EmploymentProgression.Function
             _logger.LogInformation("{CorrelationId} Attempting to Validate Patch Employment Progression request object with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
 
             var errorsList = _validate.ValidateResource(employmentProgressionValidationObject);
-            if (errorsList != null && errorsList.Any())
+            if (errorsList != null && errorsList.Count != 0)
             {
                 _logger.LogInformation("{CorrelationId} validation errors with resource customerId {customerGuid}.");
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult(errorsList);
             }
 
             _logger.LogInformation("{CorrelationId} Attempting to Update Employment Progression with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
