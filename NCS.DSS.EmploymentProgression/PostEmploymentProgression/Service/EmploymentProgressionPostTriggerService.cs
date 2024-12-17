@@ -9,12 +9,12 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
 {
     public class EmploymentProgressionPostTriggerService : IEmploymentProgressionPostTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
-        private readonly IServiceBusClient _serviceBusClient;
+        private readonly ICosmosDBProvider _cosmosDbProvider;
+        private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionPostTriggerService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionPostTriggerService(ICosmosDBProvider cosmosDBProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
-            _documentDbProvider = documentDbProvider;
+            _cosmosDbProvider = cosmosDBProvider;
             _serviceBusClient = serviceBusClient;
         }
 
@@ -32,19 +32,19 @@ namespace NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service
                 employmentProgression.LastModifiedDate = DateTime.UtcNow;
             }
 
-            var response = await _documentDbProvider.CreateEmploymentProgressionAsync(employmentProgression);
+            var response = await _cosmosDbProvider.CreateEmploymentProgressionAsync(employmentProgression);
 
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, string reqUrl)
         {
-            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl, correlationId, log);
+            await _serviceBusClient.SendPostMessageAsync(employmentProgression, reqUrl);
         }
 
-        public bool DoesEmploymentProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesEmploymentProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
+            return await _cosmosDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
         }
 
         public void SetIds(Models.EmploymentProgression employmentProgression, Guid customerGuid, string touchpointId)

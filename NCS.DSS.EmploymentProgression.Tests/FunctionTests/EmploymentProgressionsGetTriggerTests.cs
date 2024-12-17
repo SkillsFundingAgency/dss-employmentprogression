@@ -1,10 +1,9 @@
-﻿using DFC.Common.Standard.GuidHelper;
-using DFC.HTTP.Standard;
+﻿using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Models;
 using NUnit.Framework;
@@ -25,9 +24,8 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private Mock<IHttpRequestHelper> _httpRequestHelper;
         private Mock<IEmploymentProgressionGetTriggerService> _employmentTriggerService;
         private IConvertToDynamic<Models.EmploymentProgression> _convertToDynamic;
-        private Mock<IResourceHelper> _resourceHelper;
+        private Mock<ICosmosDBProvider> _cosmosDbProvider;
         private Mock<ILogger<EmploymentProgressionGetTrigger>> _loggerHelper;
-        private Mock<IGuidHelper> _guidHelper;
         private HttpRequest _request;
 
         [SetUp]
@@ -35,11 +33,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         {
             _httpRequestHelper = new Mock<IHttpRequestHelper>();
             _employmentTriggerService = new Mock<IEmploymentProgressionGetTriggerService>();
-            _convertToDynamic = new ConvertToDynamic<Models.EmploymentProgression>(); ;
-            _resourceHelper = new Mock<IResourceHelper>();
-            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetTrigger>>(); ;
-            _guidHelper = new Mock<IGuidHelper>();
-            _function = new EmploymentProgressionGetTrigger(_httpRequestHelper.Object, _employmentTriggerService.Object, _convertToDynamic, _resourceHelper.Object, _loggerHelper.Object, _guidHelper.Object);
+            _convertToDynamic = new ConvertToDynamic<Models.EmploymentProgression>(); 
+            _cosmosDbProvider = new Mock<ICosmosDBProvider>();
+            _loggerHelper = new Mock<ILogger<EmploymentProgressionGetTrigger>>(); 
+            _function = new EmploymentProgressionGetTrigger(_httpRequestHelper.Object, _employmentTriggerService.Object, _convertToDynamic, _cosmosDbProvider.Object, _loggerHelper.Object);
             _request = (new DefaultHttpContext()).Request;
         }
 
@@ -86,7 +83,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             // arrange
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(ValidCustomerId);
@@ -101,7 +98,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             // arrange
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(ValidCustomerId);
@@ -114,10 +111,11 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         public async Task Get_SuccessRequest_ReturnOk()
         {
             // arrange
+            IList<Models.EmploymentProgression> employmentProgressions = [];
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _httpRequestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https://someurl.com");
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentTriggerService.Setup(x => x.GetEmploymentProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new List<Models.EmploymentProgression>()));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _employmentTriggerService.Setup(x => x.GetEmploymentProgressionsForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(employmentProgressions));
 
             // Act
             var response = await RunFunction(ValidCustomerId);
