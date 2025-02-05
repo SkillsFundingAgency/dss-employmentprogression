@@ -54,6 +54,9 @@
         },
         "appInsightsInstrumentationKey": {
             "value": "__appInsightsInstrumentationKey__"
+        },
+        "keyVaultName": {
+          "value": "__SharedKeyVaultName__"
         }
     }
 }
