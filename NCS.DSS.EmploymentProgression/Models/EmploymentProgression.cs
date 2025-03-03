@@ -43,7 +43,7 @@ namespace NCS.DSS.EmploymentProgression.Models
         [StringLength(50)]
         public string EconomicShockCode { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z]+(([\s'\,\.\-][a-zA-Z])?[a-zA-Z]*)*$")]
+        [RegularExpression(@"^[a-zA-Z]+(([\s'\,\.\-][a-zA-Z][0-9])?[a-zA-Z][0-9]*)*$")]
         [Display(Description = "Name of the employer")]
         [Example(Description = "Employer Limited")]
         [StringLength(200)]
