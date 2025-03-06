@@ -153,7 +153,7 @@ namespace NCS.DSS.EmploymentProgression
             if (errors.Any())
             {
                 _logger.LogWarning("{CorrelationId} validation errors with resource", correlationId);
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult(string.Join(";", errors));
             }
 
             _logger.LogInformation("Employment Progression Request validation has succeeded. Customer GUID: {CustomerGuid}", customerGuid);

@@ -13,6 +13,7 @@ using NCS.DSS.EmploymentProgression.Validators;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Text.Json;
 
 namespace NCS.DSS.EmploymentProgression.Function
 {
@@ -132,7 +133,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
             catch (Exception ex)
             {
-                var eObject = _convertToDynamic.ExcludeProperty(ex, ["TargetSite"]);
+                var eObject = System.Text.Json.JsonSerializer.Serialize(_convertToDynamic.ExcludeProperty(ex, ["TargetSite"]));
                 _logger.LogError("{CorrelationId} Unable to retrieve body from req. Exception {Exception}", correlationId, eObject);
                 return new UnprocessableEntityObjectResult($"Unable to retrieve body from request. Exception: {eObject}");
             }
@@ -204,7 +205,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
             catch (Exception ex)
             {
-                var eObject = _convertToDynamic.ExcludeProperty(ex, ["TargetSite"]);
+                var eObject = System.Text.Json.JsonSerializer.Serialize(_convertToDynamic.ExcludeProperty(ex, ["TargetSite"]));
                 _logger.LogError("{CorrelationId} Unable to deserialize Employment Progression request object with ID {EmploymentRequestGuid}. Excepton : {Exception}", correlationId, employmentProgressionGuid, eObject);
                 throw;
             }
