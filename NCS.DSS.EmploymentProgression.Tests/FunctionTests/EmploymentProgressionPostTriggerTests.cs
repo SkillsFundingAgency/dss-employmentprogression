@@ -76,7 +76,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -159,7 +159,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<NoContentResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<ConflictResult>());
+            Assert.That(response, Is.InstanceOf<ConflictObjectResult>());
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<UnprocessableEntityResult>());
+            Assert.That(response, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
         [Test]

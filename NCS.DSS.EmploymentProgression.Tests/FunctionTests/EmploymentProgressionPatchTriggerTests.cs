@@ -82,7 +82,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
 
@@ -129,7 +129,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Patch_InvalidBody_ReturnBadRequest()
+        public async Task Patch_InvalidBody_ReturnUnProcessableEntity()
         {
             // arrange
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -143,7 +143,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<NoContentResult>());
+            Assert.That(response, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Patch_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Patch_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnNotFound()
         {
             // arrange
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -180,11 +180,11 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public async Task Patch_EmploymentProgressionDoesNotExistForCustomer_ReturnBadRequest()
+        public async Task Patch_EmploymentProgressionDoesNotExistForCustomer_ReturnNotFound()
         {
             // arrange
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -199,11 +199,11 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<NoContentResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public async Task Patch_NoEmploymentProgressionPatchData_ReturnNoContent()
+        public async Task Patch_NoEmploymentProgressionPatchData_ReturnNotFound()
         {
             // arrange
             var employmentjson = JsonConvert.SerializeObject(_EmploymentProgressionPatch);
@@ -220,7 +220,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<NoContentResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]

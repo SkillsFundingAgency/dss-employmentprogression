@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
@@ -42,11 +43,9 @@ namespace NCS.DSS.EmploymentProgression
 
         [Function(FunctionName)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Employment progression found.", ShowSchema = true)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Customer resource does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request is malformed.", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid.", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access to this Employment progression.", ShowSchema = false)]
-        [Response(HttpStatusCode = (int)422, Description = "Employment progression validation error(s).", ShowSchema = false)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.NotFound, Description = "Customer resource does not exist", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.EmploymentProgression), (int)HttpStatusCode.OK)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual employment progression for the given customer.")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
@@ -62,25 +61,25 @@ namespace NCS.DSS.EmploymentProgression
             if (string.IsNullOrEmpty(touchpointId))
             {
                 _logger.LogWarning("{CorrelationId} Unable to locate 'TouchpointId' in request header.", correlationId);
-                return new BadRequestResult();
+                return new BadRequestObjectResult("Unable to locate 'TouchpointId' in request header.");
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
                 _logger.LogWarning("{CorrelationId} Unable to locate 'ApimUrl' in request header.", correlationId);
-                return new BadRequestResult();
+                return new BadRequestObjectResult("Unable to locate 'ApimUrl' in request header.");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId,customerId);
-                return new BadRequestObjectResult(customerId);
+                return new BadRequestObjectResult($"Unable to parse 'customerId' to a Guid: {customerId}");
             }
             if (!Guid.TryParse(EmploymentProgressionId, out var employmentProgressionGuid))
             {
-                _logger.LogWarning("{CorrelationId} Unable to parse 'employmentProgressioniD' to a Guid: {EmploymentProgressionId}", correlationId, EmploymentProgressionId);
-                return new BadRequestObjectResult(EmploymentProgressionId);
+                _logger.LogWarning("{CorrelationId} Unable to parse 'EmploymentProgressionId' to a Guid: {EmploymentProgressionId}", correlationId, EmploymentProgressionId);
+                return new BadRequestObjectResult($"Unable to parse 'EmploymentProgressionId' to a Guid: {EmploymentProgressionId}");
             }
 
             _logger.LogInformation("{CorrelationId} Input validation has succeeded.", correlationId);
@@ -91,7 +90,7 @@ namespace NCS.DSS.EmploymentProgression
             if (!isExist)
             {
                 _logger.LogWarning("{CorrelationId} Customer with {CustomerGuid} does not exist", correlationId, customerGuid);
-                return new BadRequestResult();
+                return new NotFoundObjectResult($"Customer with ID {customerId} does not exist");
             }
             else {
                 _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
@@ -103,8 +102,9 @@ namespace NCS.DSS.EmploymentProgression
             if( employmentProgression == null)
             {
                 _logger.LogWarning("{CorrelationId} Employment Progress with {EmploymentProgressionId} does not exist", correlationId, employmentProgressionGuid);
-                return new NoContentResult();
+                return new NotFoundObjectResult($"Employment Progress with ID {EmploymentProgressionId} does not exist");
             }
+
 
             _logger.LogInformation("{CorrelationId} Successfully Retrieved Employment Progression for ID {employmentProgressionGuid}. Customer GUID: {CustomerGuid}", correlationId, employmentProgressionGuid, customerGuid);
 
