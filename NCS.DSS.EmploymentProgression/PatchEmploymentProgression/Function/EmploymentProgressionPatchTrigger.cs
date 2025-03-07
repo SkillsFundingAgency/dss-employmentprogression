@@ -133,8 +133,8 @@ namespace NCS.DSS.EmploymentProgression.Function
             }
             catch (Exception ex)
             {
-                _logger.LogError("{CorrelationId} Unable to retrieve body from req. Exception {Exception}", correlationId, ex.Message);
-                return new UnprocessableEntityObjectResult($"Unable to retrieve body from request. Exception: \"{ex.Message}\"");
+                _logger.LogError(ex, "{CorrelationId} Unable to retrieve body from req. Exception {Exception}", correlationId, ex.Message);
+                return new UnprocessableEntityObjectResult($"Unable to retrieve body from request. Exception: {ex.Message}");
             }
 
             if (employmentProgressionPatchRequest == null)
