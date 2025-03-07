@@ -132,7 +132,7 @@ namespace NCS.DSS.EmploymentProgression
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{CorrelationId} Unable to retrieve body from req. Exception {Error}", correlationId, ex.Message);
-                return new UnprocessableEntityObjectResult($"Unable to retrieve body from request. Exception is \"{ex.Message}\"");
+                return new UnprocessableEntityObjectResult(_convertToDynamic.ExcludeProperty(ex, ["TargetSite", "InnerException"]));
             }
 
             if (employmentProgressionRequest == null)
