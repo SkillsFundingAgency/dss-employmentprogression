@@ -77,7 +77,7 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
             }
             catch (JsonReaderException)
             {
-                return null;
+                throw;
             }
         }
 
