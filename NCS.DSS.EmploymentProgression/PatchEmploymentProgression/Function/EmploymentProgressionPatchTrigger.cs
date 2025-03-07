@@ -1,3 +1,4 @@
+using Azure.Core;
 using DFC.GeoCoding.Standard.AzureMaps.Model;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
@@ -191,7 +192,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             catch (Exception ex)
             {
                 _logger.LogError("Exception thrown when Patching Employment Progression with ID {EmpoymentProgressionID}. Exception: {Exception}", employmentProgressionGuid, ex.Message);
-                return new ObjectResult($"Exception thrown when Patching Employment Progression with ID {employmentProgressionGuid}. Exception: {ex.Message}") { StatusCode = (int)HttpStatusCode.InternalServerError };
+                return new BadRequestObjectResult($"Exception thrown when Patching Employment Progression with ID {employmentProgressionGuid}. Exception: {ex.Message}");
             }
 
             _logger.LogInformation("{CorrelationId} Attempting to Deserialize Patch Employment Progression request object with {ID} for customerId {customerGuid}.", correlationId, employmentProgressionGuid, customerGuid);
@@ -205,7 +206,7 @@ namespace NCS.DSS.EmploymentProgression.Function
             {
                 var eObject = System.Text.Json.JsonSerializer.Serialize(_convertToDynamic.ExcludeProperty(ex, ["TargetSite"]));
                 _logger.LogError("{CorrelationId} Unable to deserialize Employment Progression request object with ID {EmploymentRequestGuid}. Excepton : {Exception}", correlationId, employmentProgressionGuid, eObject);
-                throw;
+                return new BadRequestObjectResult($"Unable to deserialize Employment Progression request object with ID {employmentProgressionGuid}. Excepton: {ex.Message}");
             }
             
             if (employmentProgressionValidationObject == null)
