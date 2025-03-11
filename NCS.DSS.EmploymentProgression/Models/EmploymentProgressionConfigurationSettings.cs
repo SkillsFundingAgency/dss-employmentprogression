@@ -2,6 +2,7 @@
 {
     public class EmploymentProgressionConfigurationSettings
     {
+        public required string CosmosDbEndpoint { get; set; }
         public string CosmosDBConnectionString { get; set; }
         public string KeyName { get; set; }
         public string AccessKey { get; set; }

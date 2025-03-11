@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using DFC.GeoCoding.Standard.AzureMaps.Service;
 using DFC.HTTP.Standard;
@@ -52,12 +53,14 @@ namespace NCS.DSS.EmploymentProgression
                     services.AddSingleton<ICosmosDBProvider, CosmosDBProvider>();
                     services.AddSingleton(sp =>
                     {
-                        var settings = sp.GetRequiredService<IOptions<EmploymentProgressionConfigurationSettings>>().Value;
-                        var options = new CosmosClientOptions()
+                        var cosmosDbEndpoint = configuration["CosmosDbEndpoint"];
+                        if (string.IsNullOrEmpty(cosmosDbEndpoint))
                         {
-                            ConnectionMode = ConnectionMode.Gateway
-                        };
-                        return new CosmosClient(settings.CosmosDBConnectionString, options);
+                            throw new InvalidOperationException("CosmosDbEndpoint is not configured.");
+                        }
+
+                        var options = new CosmosClientOptions() { ConnectionMode = ConnectionMode.Gateway };
+                        return new CosmosClient(cosmosDbEndpoint, new DefaultAzureCredential(), options);
                     });
                     services.AddScoped<IEmploymentProgressionServiceBusClient, EmploymentProgressionServiceBusClient>();
                     services.AddSingleton(serviceProvider =>
