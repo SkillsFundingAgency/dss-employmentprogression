@@ -18,7 +18,9 @@
             "value": "__ReleaseEnvironmentName__"
         },
         "functionAppNames": {
-            "value": [ "__FunctionAppName__" ]
+            "value": [
+                "__FunctionAppName__"
+            ]
         },
         "serviceBusConnectionString": {
             "value": "__ServiceBusConnectionString__"
@@ -49,6 +51,12 @@
         },
         "workspaceResourceGroup": {
             "value": "__sharedLogAnalyticsResourceGroup__"
+        },
+        "appInsightsInstrumentationKey": {
+            "value": "__appInsightsInstrumentationKey__"
+        },
+        "keyVaultName": {
+          "value": "__SharedKeyVaultName__"
         }
     }
 }

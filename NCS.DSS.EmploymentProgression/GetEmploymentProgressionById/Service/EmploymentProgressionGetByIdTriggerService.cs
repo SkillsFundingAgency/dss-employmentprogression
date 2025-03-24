@@ -5,18 +5,18 @@ namespace NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service
 {
     public class EmploymentProgressionGetByIdTriggerService : IEmploymentProgressionGetByIdTriggerService
     {
-        private readonly IDocumentDBProvider _documentDbProvider;
-        private readonly IServiceBusClient _serviceBusClient;
+        private readonly ICosmosDBProvider _cosmosDbProvider;
+        private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionGetByIdTriggerService(IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionGetByIdTriggerService(ICosmosDBProvider cosmosDBProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
-            _documentDbProvider = documentDbProvider;
+            _cosmosDbProvider = cosmosDBProvider;
             _serviceBusClient = serviceBusClient;
         }
 
         public async Task<Models.EmploymentProgression> GetEmploymentProgressionForCustomerAsync(Guid customerId, Guid progressionProgressionId)
         {
-            return await _documentDbProvider.GetEmploymentProgressionForCustomerAsync(customerId, progressionProgressionId);
+            return await _cosmosDbProvider.GetEmploymentProgressionForCustomerAsync(customerId, progressionProgressionId);
         }
     }
 }
