@@ -2,6 +2,6 @@
 {
     public interface IEmploymentProgressionGetTriggerService
     {
-        Task<List<Models.EmploymentProgression>> GetEmploymentProgressionsForCustomerAsync(Guid customerId);
+        Task<IList<Models.EmploymentProgression>> GetEmploymentProgressionsForCustomerAsync(Guid customerId);
     }
 }

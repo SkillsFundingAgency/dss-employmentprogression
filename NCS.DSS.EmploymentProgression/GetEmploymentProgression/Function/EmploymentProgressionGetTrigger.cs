@@ -1,11 +1,10 @@
-using DFC.Common.Standard.GuidHelper;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.Contact.Cosmos.Helper;
+using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.Models;
 using System.ComponentModel.DataAnnotations;
@@ -16,29 +15,26 @@ namespace NCS.DSS.EmploymentProgression
     public class EmploymentProgressionGetTrigger
     {
         const string RouteValue = "customers/{customerId}/employmentprogressions";
-        const string FunctionName = "Get";
+        const string FunctionName = "GET";
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IEmploymentProgressionGetTriggerService _EmploymentProgressionsGetTriggerService;
         private readonly IConvertToDynamic<Models.EmploymentProgression> _convertToDynamic;
-        private readonly IResourceHelper _resourceHelper;
-        private readonly ILogger<EmploymentProgressionGetTrigger> _loggerHelper;
-        private readonly IGuidHelper _guidHelper;
+        private readonly ICosmosDBProvider _cosmosDbProvider;
+        private readonly ILogger<EmploymentProgressionGetTrigger> _logger;
 
         public EmploymentProgressionGetTrigger(
             IHttpRequestHelper httpRequestHelper,
             IEmploymentProgressionGetTriggerService EmploymentProgressionsGetTriggerService,
             IConvertToDynamic<Models.EmploymentProgression> convertToDynamic,
-            IResourceHelper resourceHelper,
-            ILogger<EmploymentProgressionGetTrigger> loggerHelper,
-            IGuidHelper guidHelper
+            ICosmosDBProvider cosmosDbProvider,
+            ILogger<EmploymentProgressionGetTrigger> logger
             )
         {
             _httpRequestHelper = httpRequestHelper;
             _EmploymentProgressionsGetTriggerService = EmploymentProgressionsGetTriggerService;
             _convertToDynamic = convertToDynamic;
-            _resourceHelper = resourceHelper;
-            _loggerHelper = loggerHelper;
-            _guidHelper = guidHelper;
+            _cosmosDbProvider = cosmosDbProvider;
+            _logger = logger;
         }
 
         [Function(FunctionName)]
@@ -54,44 +50,60 @@ namespace NCS.DSS.EmploymentProgression
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RouteValue)]
             HttpRequest req, string customerId)
         {
-            _loggerHelper.LogInformation("Started EmploymentProgressionGetTrigger");
+            var functionName = nameof(EmploymentProgressionGetTrigger);
+
+            _logger.LogInformation("Function {FunctionName} has been invoked", functionName);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-            var correlationGuid = _guidHelper.ValidateAndGetGuid(correlationId);
-
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to locate 'TouchpointId' in request header.");
+                _logger.LogWarning("{CorrelationId} Unable to locate 'TouchpointId' in request header.", correlationId);
                 return new BadRequestResult();
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to locate 'apimurl' in request header");
+                _logger.LogWarning("{CorrelationId} Unable to locate 'apimurl' in request header", correlationId);
                 return new BadRequestResult();
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Unable to parse 'customerId' to a Guid: {customerId}");
+                _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId, customerId);
                 return new BadRequestObjectResult(customerId);
             }
 
-            if (!await _resourceHelper.DoesCustomerExist(customerGuid))
+            _logger.LogInformation("{CorrelationId} Input validation has succeeded.", correlationId);
+
+            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+            var isExist = await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid);
+            if (!isExist)
             {
-                _loggerHelper.LogInformation($"[{correlationGuid}] Customer [{customerGuid}] does not exist");
+                _logger.LogWarning("{CorrelationId} Customer {customerGuid} does not exist", correlationId, customerGuid);
                 return new NoContentResult();
             }
+            else
+            {
+                _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
+            }
+
+            _logger.LogInformation("Attempting to Get Employment Progression. Customer GUID: {CustomerGuid}", customerGuid);
 
             var employmentProgression = await _EmploymentProgressionsGetTriggerService.GetEmploymentProgressionsForCustomerAsync(customerGuid);
-
-            _loggerHelper.LogInformation("Exited EmploymentProgressionGetTrigger");
-
-            return employmentProgression == null ?
-                new NoContentResult() :
-                new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.OK };
+            if (employmentProgression == null)
+            {
+                _logger.LogWarning("{CorrelationId} Employment Progressions for a Customer with ID {CustomerID} does not exist", correlationId, customerGuid);
+                _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
+                return new NoContentResult();
+            }
+            else
+            {
+                _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
+                return new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.OK };
+            }
+            
         }
     }
 }

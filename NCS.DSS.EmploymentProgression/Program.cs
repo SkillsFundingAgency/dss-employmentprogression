@@ -1,15 +1,16 @@
-using DFC.Common.Standard.GuidHelper;
-using DFC.Common.Standard.Logging;
+using Azure.Messaging.ServiceBus;
 using DFC.GeoCoding.Standard.AzureMaps.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NCS.DSS.Contact.Cosmos.Helper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Azure.Functions.Worker;
 using NCS.DSS.EmployeeProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
-using NCS.DSS.EmploymentProgression.CosmosDocumentClient;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.Models;
@@ -17,49 +18,76 @@ using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.ServiceBus;
 using NCS.DSS.EmploymentProgression.Validators;
-var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureServices(services =>
+using Microsoft.Extensions.Configuration;
+namespace NCS.DSS.EmploymentProgression
+{
+    internal class Program
     {
-        var settings = new ConfigurationSettings
+        private static async Task Main(string[] args)
         {
-            CosmosDBConnectionString = Environment.GetEnvironmentVariable("CosmosDBConnectionString"),
-            KeyName = Environment.GetEnvironmentVariable("KeyName"),
-            AccessKey = Environment.GetEnvironmentVariable("AccessKey"),
-            BaseAddress = Environment.GetEnvironmentVariable("BaseAddress"),
-            QueueName = Environment.GetEnvironmentVariable("QueueName"),
-            ServiceBusConnectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString"),
+            var host = new HostBuilder()
+                .ConfigureFunctionsWebApplication()
+                .ConfigureAppConfiguration(configBuilder =>
+                {
+                    configBuilder.SetBasePath(Environment.CurrentDirectory)
+                        .AddJsonFile("local.settings.json", optional: true,
+                            reloadOnChange: false)
+                        .AddEnvironmentVariables();
+                })
+                .ConfigureServices((context,services) =>
+                {
+                    var configuration = context.Configuration;
+                    services.AddOptions<EmploymentProgressionConfigurationSettings>()
+                        .Bind(configuration);
+                    services.AddLogging();
+                    services.AddApplicationInsightsTelemetryWorkerService();
+                    services.ConfigureFunctionsApplicationInsights();
+                    services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
+                    services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
+                    services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
+                    services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
+                    services.AddTransient<IEmploymentProgressionPatchService, EmploymentProgressionPatchService>();
 
-            AzureMapURL = Environment.GetEnvironmentVariable("AzureMapURL"),
-            AzureMapApiVersion = Environment.GetEnvironmentVariable("AzureMapApiVersion"),
-            AzureMapSubscriptionKey = Environment.GetEnvironmentVariable("AzureMapSubscriptionKey"),
-            AzureCountrySet = Environment.GetEnvironmentVariable("AzureCountrySet"),
-        };
+                    services.AddSingleton(typeof(IConvertToDynamic<>), typeof(ConvertToDynamic<>));
+                    services.AddSingleton<ICosmosDBProvider, CosmosDBProvider>();
+                    services.AddSingleton(sp =>
+                    {
+                        var settings = sp.GetRequiredService<IOptions<EmploymentProgressionConfigurationSettings>>().Value;
+                        var options = new CosmosClientOptions()
+                        {
+                            ConnectionMode = ConnectionMode.Gateway
+                        };
+                        return new CosmosClient(settings.CosmosDBConnectionString, options);
+                    });
+                    services.AddScoped<IEmploymentProgressionServiceBusClient, EmploymentProgressionServiceBusClient>();
+                    services.AddSingleton(serviceProvider =>
+                    {
+                        var settings = serviceProvider.GetRequiredService<IOptions<EmploymentProgressionConfigurationSettings>>().Value;
+                        return new ServiceBusClient(settings.ServiceBusConnectionString);
+                    });
+                    
+                    services.AddTransient<IValidate, Validate>();
+                    services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
+                    services.AddScoped<IGeoCodingService, GeoCodingService>();
+                    services.AddScoped<IAzureMapService, AzureMapService>();
 
-        services.AddSingleton(settings);
-        services.AddSingleton<ICosmosDocumentClient, CosmosDocumentClient>(x => new CosmosDocumentClient(settings.CosmosDBConnectionString));
+                    services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
+                    services.AddSingleton<IJsonHelper, JsonHelper>();
+                    services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
+                    services.Configure<LoggerFilterOptions>(options =>
+                    {
+                        LoggerFilterRule toRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                            == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+                        if (toRemove is not null)
+                        {
+                            options.Rules.Remove(toRemove);
+                        }
+                    });
 
-        services.AddTransient<IEmploymentProgressionPostTriggerService, EmploymentProgressionPostTriggerService>();
-        services.AddTransient<IEmploymentProgressionPatchTriggerService, EmploymentProgressionPatchTriggerService>();
-        services.AddTransient<IEmploymentProgressionGetTriggerService, EmploymentProgressionGetTriggerService>();
-        services.AddTransient<IEmploymentProgressionGetByIdTriggerService, EmploymentProgressionGetByIdTriggerService>();
-        services.AddTransient<IEmploymentProgressionPatchService, EmploymentProgressionPatchService>();
+                })
+                .Build();
 
-        services.AddSingleton(typeof(IConvertToDynamic<>), typeof(ConvertToDynamic<>));
-        services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
-        services.AddTransient<IServiceBusClient, ServiceBusClient>();
-        services.AddTransient<IValidate, Validate>();
-        services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
-        services.AddScoped<IGeoCodingService, GeoCodingService>();
-        services.AddScoped<IAzureMapService, AzureMapService>();
-
-        services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
-        services.AddSingleton<IJsonHelper, JsonHelper>();
-        services.AddSingleton<IResourceHelper, ResourceHelper>();
-        services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
-        services.AddSingleton<ILoggerHelper, LoggerHelper>();
-        services.AddTransient<IGuidHelper, GuidHelper>();
-    })
-    .Build();
-
-host.Run();
+            await host.RunAsync();
+        }
+    }
+}

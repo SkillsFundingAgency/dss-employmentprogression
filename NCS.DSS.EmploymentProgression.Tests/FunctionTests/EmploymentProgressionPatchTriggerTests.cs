@@ -1,11 +1,10 @@
-﻿using DFC.Common.Standard.GuidHelper;
-using DFC.HTTP.Standard;
+﻿using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.Contact.Cosmos.Helper;
 using NCS.DSS.EmployeeProgression.GeoCoding;
+using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Function;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
@@ -33,11 +32,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         private Mock<ILogger<EmploymentProgressionPatchTrigger>> _loggerHelper;
         private Mock<IGeoCodingService> _geoService;
         private Mock<IConvertToDynamic<Models.EmploymentProgression>> _convertToDynamic;
-        private Mock<GuidHelper> _guidHelper;
         private Mock<IHttpRequestHelper> _requestHelper;
         private Mock<IEmploymentProgressionPatchService> _employmentProgressionPatchService;
         private Mock<IEmploymentProgressionPatchTriggerService> _employmentProgressionPatchTriggerService;
-        private Mock<IResourceHelper> _resourceHelper;
+        private Mock<ICosmosDBProvider> _cosmosDbProvider;
         private Mock<IValidate> _valdiator;
         private HttpRequest _request;
         private EmploymentProgressionPatchTrigger _function;
@@ -56,11 +54,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _loggerHelper = new Mock<ILogger<EmploymentProgressionPatchTrigger>>();
             _geoService = new Mock<IGeoCodingService>();
             _convertToDynamic = new Mock<IConvertToDynamic<Models.EmploymentProgression>>();
-            _guidHelper = new Mock<GuidHelper>();
             _requestHelper = new Mock<IHttpRequestHelper>();
             _employmentProgressionPatchService = new Mock<IEmploymentProgressionPatchService>();
             _employmentProgressionPatchTriggerService = new Mock<IEmploymentProgressionPatchTriggerService>();
-            _resourceHelper = new Mock<IResourceHelper>();
+            _cosmosDbProvider = new Mock<ICosmosDBProvider>();
             _valdiator = new Mock<IValidate>();
             _EmploymentProgressionPatch = new EmploymentProgressionPatch();
 
@@ -68,11 +65,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 _requestHelper.Object,
                 _employmentProgressionPatchTriggerService.Object,
                 _convertToDynamic.Object,
-                _resourceHelper.Object,
+                _cosmosDbProvider.Object,
                 _valdiator.Object,
                 _loggerHelper.Object,
                 _geoService.Object,
-                _guidHelper.Object,
                 _employmentProgressionPatchService.Object);
             _request = (new DefaultHttpContext()).Request;
         }
@@ -139,6 +135,9 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(InvalidEmploymentProgressionPatch));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
@@ -154,9 +153,9 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(ValidEmploymentProgressionPatch));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
@@ -173,9 +172,9 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(ValidEmploymentProgressionPatch));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
@@ -191,10 +190,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(ValidEmploymentProgressionPatch));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(false);
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
@@ -211,12 +210,12 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(ValidEmploymentProgressionPatch));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _employmentProgressionPatchTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult<string>(null));
-
+           
             // Act
             var response = await RunFunction(ValidCustomerId, ValidEmploymentProgressionId);
 
@@ -233,10 +232,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(ValidEmploymentProgressionPatch));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _employmentProgressionPatchTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(employmentjson));
             _employmentProgressionPatchService.Setup(x => x.PatchEmploymentProgressionAsync(It.IsAny<string>(), It.IsAny<EmploymentProgressionPatch>())).Returns(employmentjson);
             _employmentProgressionPatchTriggerService.Setup(x => x.UpdateCosmosAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));
@@ -244,11 +243,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
                 _requestHelper.Object,
                 _employmentProgressionPatchTriggerService.Object,
                 _convertToDynamic.Object,
-                _resourceHelper.Object,
+                _cosmosDbProvider.Object,
                 val,
                 _loggerHelper.Object,
                 _geoService.Object,
-                _guidHelper.Object,
                 _employmentProgressionPatchService.Object);
 
             // Act
@@ -267,10 +265,10 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             _requestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
             _requestHelper.Setup(x => x.GetDssApimUrl(It.IsAny<HttpRequest>())).Returns("https:\\someurl");
             _requestHelper.Setup(x => x.GetResourceFromRequest<EmploymentProgressionPatch>(It.IsAny<HttpRequest>())).Returns(Task.FromResult(ValidEmploymentProgressionPatch));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
-            _resourceHelper.Setup(x => x.IsCustomerReadOnly(It.IsAny<Guid>())).Returns(Task.FromResult(false));
-            _resourceHelper.Setup(x => x.DoesCustomerExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
-            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(true);
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerHaveATerminationDate(It.IsAny<Guid>())).Returns(Task.FromResult(false));
+            _cosmosDbProvider.Setup(x => x.DoesCustomerResourceExist(It.IsAny<Guid>())).Returns(Task.FromResult(true));
+            _employmentProgressionPatchTriggerService.Setup(x => x.DoesEmploymentProgressionExistForCustomer(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _employmentProgressionPatchTriggerService.Setup(x => x.GetEmploymentProgressionForCustomerToPatchAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).Returns(Task.FromResult(employmentjson));
             _employmentProgressionPatchService.Setup(x => x.PatchEmploymentProgressionAsync(It.IsAny<string>(), It.IsAny<EmploymentProgressionPatch>())).Returns(employmentjson);
             _employmentProgressionPatchTriggerService.Setup(x => x.UpdateCosmosAsync(It.IsAny<string>(), It.IsAny<Guid>())).Returns(Task.FromResult(new Models.EmploymentProgression()));

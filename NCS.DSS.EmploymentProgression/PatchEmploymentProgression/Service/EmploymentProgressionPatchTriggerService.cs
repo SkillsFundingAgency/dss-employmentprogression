@@ -1,6 +1,4 @@
 ﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
-using DFC.JSON.Standard;
-using Microsoft.Extensions.Logging;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.ServiceBus;
@@ -10,20 +8,18 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
 {
     public class EmploymentProgressionPatchTriggerService : IEmploymentProgressionPatchTriggerService
     {
-        private readonly IJsonHelper _jsonHelper;
-        private readonly IDocumentDBProvider _documentDbProvider;
-        private readonly IServiceBusClient _serviceBusClient;
+        private readonly ICosmosDBProvider _cosmosDbProvider;
+        private readonly IEmploymentProgressionServiceBusClient _serviceBusClient;
 
-        public EmploymentProgressionPatchTriggerService(IJsonHelper jsonHelper, IDocumentDBProvider documentDbProvider, IServiceBusClient serviceBusClient)
+        public EmploymentProgressionPatchTriggerService( ICosmosDBProvider cosmosDbProvider, IEmploymentProgressionServiceBusClient serviceBusClient)
         {
-            _jsonHelper = jsonHelper;
-            _documentDbProvider = documentDbProvider;
+            _cosmosDbProvider = cosmosDbProvider;
             _serviceBusClient = serviceBusClient;
         }
 
         public async Task<string> GetEmploymentProgressionForCustomerToPatchAsync(Guid customerId, Guid employmentProgressionId)
         {
-            var employmentProgressionAsString = await _documentDbProvider.GetEmploymentProgressionForCustomerToPatchAsync(customerId, employmentProgressionId);
+            var employmentProgressionAsString = await _cosmosDbProvider.GetEmploymentProgressionForCustomerToPatchAsync(customerId, employmentProgressionId);
 
             return employmentProgressionAsString;
         }
@@ -35,25 +31,25 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                 return null;
             }
 
-            var response = await _documentDbProvider.UpdateEmploymentProgressionAsync(employmentProgressionAsJson, employmentProgressionId);
+            var response = await _cosmosDbProvider.UpdateEmploymentProgressionAsync(employmentProgressionAsJson, employmentProgressionId);
             var responseStatusCode = response?.StatusCode;
 
             return responseStatusCode == HttpStatusCode.OK ? (dynamic)response.Resource : null;
         }
 
-        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl, Guid correlationId, ILogger log)
+        public async Task SendToServiceBusQueueAsync(Models.EmploymentProgression employmentProgression, Guid customerId, string reqUrl)
         {
-            await _serviceBusClient.SendPatchMessageAsync(employmentProgression, customerId, reqUrl, correlationId, log);
+            await _serviceBusClient.SendPatchMessageAsync(employmentProgression, customerId, reqUrl);
         }
 
-        public bool DoesEmploymentProgressionExistForCustomer(Guid customerId)
+        public async Task<bool> DoesEmploymentProgressionExistForCustomer(Guid customerId)
         {
-            return _documentDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
+            return await _cosmosDbProvider.DoesEmploymentProgressionExistForCustomer(customerId);
         }
 
         public async Task<bool> DoesCustomerExist(Guid customerId)
         {
-            return await _documentDbProvider.DoesCustomerResourceExist(customerId);
+            return await _cosmosDbProvider.DoesCustomerResourceExist(customerId);
         }
 
         public void SetIds(EmploymentProgressionPatch employmentProgressionPatch, Guid employmentProgressionGuid, string touchpointId)
