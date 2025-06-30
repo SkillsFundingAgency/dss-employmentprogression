@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using DFC.GeoCoding.Standard.AzureMaps.Service;
 using DFC.HTTP.Standard;
@@ -52,12 +53,30 @@ namespace NCS.DSS.EmploymentProgression
                     services.AddSingleton<ICosmosDBProvider, CosmosDBProvider>();
                     services.AddSingleton(sp =>
                     {
-                        var settings = sp.GetRequiredService<IOptions<EmploymentProgressionConfigurationSettings>>().Value;
-                        var options = new CosmosClientOptions()
+                        var logger = sp.GetRequiredService<ILogger<Program>>();
+
+                        var connectionString = configuration["CosmosDBConnectionString"];
+                        var endpoint = configuration["CosmosDbEndpoint"];
+
+                        var options = new CosmosClientOptions
                         {
                             ConnectionMode = ConnectionMode.Gateway
                         };
-                        return new CosmosClient(settings.CosmosDBConnectionString, options);
+
+                        if (!string.IsNullOrWhiteSpace(endpoint))
+                        {
+                            logger.LogInformation("Using DefaultAzureCredential for Cosmos DB (managed identity)");
+                            return new CosmosClient(endpoint, new DefaultAzureCredential(), options);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(connectionString))
+                        {
+                            logger.LogInformation("No managed identity found: using Cosmos DB connection string (local development)");
+                            return new CosmosClient(connectionString, options);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Neither CosmosDbEndpoint or a ConnectionString are configured");
+                        }
                     });
                     services.AddScoped<IEmploymentProgressionServiceBusClient, EmploymentProgressionServiceBusClient>();
                     services.AddSingleton(serviceProvider =>
