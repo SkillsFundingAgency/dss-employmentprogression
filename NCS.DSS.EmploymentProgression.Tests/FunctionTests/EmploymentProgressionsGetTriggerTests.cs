@@ -47,7 +47,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<BadRequestResult>());
+            Assert.That(response, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
         }
 
         [Test]
-        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnBadRequest()
+        public async Task Get_CustomerIdIsValidGuidButCustomerDoesNotExist_ReturnNotFound()
         {
             // arrange
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -89,11 +89,11 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<NoContentResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public async Task Get_EmploymentProgressionISNull_ReturnNoContent()
+        public async Task Get_EmploymentProgressionISNull_ReturnNotFound()
         {
             // arrange
             _httpRequestHelper.Setup(x => x.GetDssTouchpointId(It.IsAny<HttpRequest>())).Returns("0000000001");
@@ -104,7 +104,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
             var response = await RunFunction(ValidCustomerId);
 
             //Assert
-            Assert.That(response, Is.InstanceOf<NoContentResult>());
+            Assert.That(response, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]

@@ -32,7 +32,7 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                 while (queryCust.HasMoreResults)
                 {
                     var response = await queryCust.ReadNextAsync();
-                    if (response != null)
+                    if (response.Count > 0)
                     {
                         _logger.LogInformation("Customer Record found in Cosmos DB for {CustomerID}", customerId);
                         return true;
