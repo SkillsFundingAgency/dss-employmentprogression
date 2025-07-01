@@ -142,7 +142,11 @@ namespace NCS.DSS.EmploymentProgression.Tests.ValidationTests
         }
 
         [Test]
-        public void ValidateTests_ReturnValidationResult_WhenEmployerNameIsValid()
+        [TestCase("Employer Name")]
+        [TestCase("Employer Name 4 you")]
+        [TestCase("Employer Name 4you")]
+        [TestCase("Employer Name 4 you you")]
+        public void ValidateTests_ReturnValidationResult_WhenEmployerNameIsValid(string employerName)
         {
             var employmentProgression = new Models.EmploymentProgression
             {
@@ -152,7 +156,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.ValidationTests
                 DateProgressionRecorded = DateTime.UtcNow,
                 CurrentEmploymentStatus = ReferenceData.CurrentEmploymentStatus.NotKnown,
                 LastModifiedTouchpointId = "0000000001",
-                EmployerName = "Employer Name"
+                EmployerName = employerName
             };
 
             var result = _validate.ValidateResource(employmentProgression);
@@ -161,7 +165,7 @@ namespace NCS.DSS.EmploymentProgression.Tests.ValidationTests
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Count, Is.EqualTo(0));
         }
-
+       
         [Test]
         public void ValidateTests_ReturnValidationResult_WhenEmployerNameIsInvalid()
         {
