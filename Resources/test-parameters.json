@@ -17,9 +17,6 @@
         "functionAppNames": {
             "value": [ "dss-foo-employ-fa" ]
         },
-        "serviceBusConnectionString": {
-            "value": "Endpoint=sb://dss-foo-shared-ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=not-a-real-key="
-        },
         "serviceBusQueueName": {
             "value": "dss-content"
         },
@@ -37,9 +34,6 @@
         },
         "templateBaseUrl": {
             "value": "https://raw.githubusercontent.com/SkillsFundingAgency/dss-employmentprogression/master-v3/Resources/"
-        },
-        "azureMapSubscriptionKey": {
-            "value": "not-a-real-api-key"
         },
         "workspaceName": {
             "value": "aTestLogAnalyticsAccount"

@@ -17,9 +17,6 @@
         "functionAppNames": {
             "type": "array"
         },
-        "serviceBusConnectionString": {
-            "type": "securestring"
-        },
         "serviceBusQueueName": {
             "type": "string"
         },
@@ -37,9 +34,6 @@
         },
         "templateBaseUrl": {
             "type": "string"
-        },
-        "azureMapSubscriptionKey": {
-            "type": "securestring"
         },
         "workspaceName": {
             "type": "string"
@@ -75,12 +69,12 @@
                 "CustomerDatabaseId": "customers",
                 "LeaseCollectionName": "employmentprogression-lease",
                 "LeaseCollectionPrefix": "employmentprogressionChangeFeedPrefix",
-                "ServiceBusConnectionString": "[parameters('serviceBusConnectionString')]",
+                "ServiceBusConnectionString": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=ServiceBusConnectionString)', parameters('keyVaultName'))]",
                 "ChangeFeedQueueName": "dss.changefeedqueue",
                 "QueueName": "[parameters('serviceBusQueueName')]",
                 "AzureMapURL": "https://atlas.microsoft.com/search",
                 "AzureMapApiVersion": "1.0",
-                "AzureMapSubscriptionKey": "[parameters('azureMapSubscriptionKey')]",
+                "AzureMapSubscriptionKey": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=AzureMapsAccessKey)', parameters('keyVaultName'))]",
                 "AzureCountrySet": "GB",
                 "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]"
             },
