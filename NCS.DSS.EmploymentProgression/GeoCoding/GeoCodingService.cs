@@ -18,19 +18,19 @@ namespace NCS.DSS.EmployeeProgression.GeoCoding
 
         public async Task<Position> GetPositionForPostcodeAsync(string postcode)
         {
-            _logger.LogInformation("Attempting to Validate Postcode {PostCode}",postcode);
+            _logger.LogTrace("Attempting to Validate Postcode {PostCode}",postcode);
             if (string.IsNullOrEmpty(postcode))
                 return null;
             try
             {
-                _logger.LogInformation("Attempting to Get Position of Postcode {PostCode}", postcode);
+                _logger.LogTrace("Attempting to Get Position of Postcode {PostCode}", postcode);
                 var position = await _azureMapService.GetPositionForAddress(postcode);
                 if(position != null)
                 {
-                    _logger.LogInformation("Successfully Retrieved Position {Long}/{Lat} of Postcode {PostCode}",position.Lon,position.Lat, postcode);
+                    _logger.LogTrace("Successfully Retrieved Position {Long}/{Lat} of Postcode {PostCode}",position.Lon,position.Lat, postcode);
                     return position;
                 }
-                _logger.LogWarning("Failed to Retrieve Position of Postcode {PostCode}", postcode);
+                _logger.LogInformation("Failed to Retrieve Position of Postcode {PostCode}", postcode);
                 return null;
             }
             catch (Exception ex)
