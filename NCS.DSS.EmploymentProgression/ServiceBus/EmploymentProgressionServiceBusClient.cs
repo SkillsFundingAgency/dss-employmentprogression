@@ -20,9 +20,9 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
         {
             try
             {
-                _logger.LogInformation("Attempting to Create Sender for Service Bus Client");
+                _logger.LogTrace("Attempting to Create Sender for Service Bus Client");
                 var serviceBusSender = _serviceBusClient.CreateSender(QueueName);
-                _logger.LogInformation("Preparing Message for Service Bus");
+                _logger.LogTrace("Preparing Message for Service Bus");
                 var messageModel = new MessageModel()
                 {
                     TitleMessage = $"New Employment Progression record {{{employmentProgression.EmploymentProgressionId}}} added at {DateTime.UtcNow}",
@@ -38,9 +38,9 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
                     ContentType = "application/json",
                     MessageId = $"{employmentProgression.CustomerId} {DateTime.UtcNow}"
                 };
-                _logger.LogInformation("Attempting to Send Service Bus Message for Employment Progression with ID {EmploymentProgressionId}", employmentProgression.EmploymentProgressionId);
+                _logger.LogTrace("Attempting to Send Service Bus Message for Employment Progression with ID {EmploymentProgressionId}", employmentProgression.EmploymentProgressionId);
                 await serviceBusSender.SendMessageAsync(msg);
-                _logger.LogInformation("POST Service Bus Message for Employment Progression with ID {EmploymentProgressionId} has been sent successfully", employmentProgression.EmploymentProgressionId);
+                _logger.LogTrace("POST Service Bus Message for Employment Progression with ID {EmploymentProgressionId} has been sent successfully", employmentProgression.EmploymentProgressionId);
             }
             catch (Exception ex)
             {
@@ -53,9 +53,9 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
         {
             try
             {
-                _logger.LogInformation("Attempting to Create Sender for Service Bus Client");
+                _logger.LogTrace("Attempting to Create Sender for Service Bus Client");
                 var serviceBusSender = _serviceBusClient.CreateSender(QueueName);
-                _logger.LogInformation("Preparing Message for Service Bus");
+                _logger.LogTrace("Preparing Message for Service Bus");
                 var messageModel = new MessageModel
                 {
                     TitleMessage = $"Employment Progression record modification for {{{customerId}}} at {DateTime.UtcNow}",
@@ -71,9 +71,9 @@ namespace NCS.DSS.EmploymentProgression.ServiceBus
                     ContentType = "application/json",
                     MessageId = $"{customerId} {DateTime.UtcNow}"
                 };
-                _logger.LogInformation("Attempting to Send Service Bus Message for Employment Progression with ID {EmploymentProgressionId}", employmentProgression.EmploymentProgressionId);
+                _logger.LogTrace("Attempting to Send Service Bus Message for Employment Progression with ID {EmploymentProgressionId}", employmentProgression.EmploymentProgressionId);
                 await serviceBusSender.SendMessageAsync(msg);
-                _logger.LogInformation("PATCH Service Bus Message for Employment Progression with ID {EmploymentProgressionId} has been sent successfully", employmentProgression.EmploymentProgressionId);
+                _logger.LogTrace("PATCH Service Bus Message for Employment Progression with ID {EmploymentProgressionId} has been sent successfully", employmentProgression.EmploymentProgressionId);
 
             }
             catch (Exception ex)

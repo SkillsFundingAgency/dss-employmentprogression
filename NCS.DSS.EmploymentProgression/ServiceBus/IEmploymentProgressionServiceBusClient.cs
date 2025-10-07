@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
+﻿
 namespace NCS.DSS.EmploymentProgression.ServiceBus
 {
     public interface IEmploymentProgressionServiceBusClient

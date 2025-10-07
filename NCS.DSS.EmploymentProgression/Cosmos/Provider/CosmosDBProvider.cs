@@ -34,11 +34,11 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                     var response = await queryCust.ReadNextAsync();
                     if (response.Count > 0)
                     {
-                        _logger.LogInformation("Customer Record found in Cosmos DB for {CustomerID}", customerId);
+                        _logger.LogTrace("Customer Record found in Cosmos DB for {CustomerID}", customerId);
                         return true;
                     }
                 }
-                _logger.LogWarning("No Customer Record found with {CustomerID} in Cosmos DB", customerId);
+                _logger.LogInformation("No Customer Record found with {CustomerID} in Cosmos DB", customerId);
                 return false;
             }
             catch (CosmosException ce)
@@ -57,10 +57,10 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                 {
                     var response = await queryCust.ReadNextAsync();
                     var tDate = response.Resource.FirstOrDefault().DateOfTermination;
-                    _logger.LogInformation("Customer with {CustomerID} Have a termination date of {tDate} ", customerId, tDate);
+                    _logger.LogTrace("Customer with {CustomerID} Have a termination date of {tDate} ", customerId, tDate);
                     return tDate.HasValue;
                 }
-                _logger.LogWarning("No Customer Record found with {CustomerID} in Cosmos DB", customerId);
+                _logger.LogInformation("No Customer Record found with {CustomerID} in Cosmos DB", customerId);
                 return false;
             }
             catch (CosmosException ce)
@@ -81,11 +81,11 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                     var response = await queryep.ReadNextAsync();
                     if (response != null && response.Resource.Any())
                     {
-                        _logger.LogInformation("Employment Progression Record found in Cosmos DB for Customer with ID {CustomerID}", customerId);
+                        _logger.LogTrace("Employment Progression Record found in Cosmos DB for Customer with ID {CustomerID}", customerId);
                         return true;
                     }
                 }
-                _logger.LogWarning("No Employment Progression found with {CustomerID} in Cosmos DB", customerId);
+                _logger.LogInformation("No Employment Progression found with {CustomerID} in Cosmos DB", customerId);
                 return false;
             }
             catch (CosmosException ce)
@@ -107,11 +107,11 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                     var response = await queryep.ReadNextAsync();
                     if (response != null && response.Resource.Any())
                     {
-                        _logger.LogInformation("Employment Progression Record found with ID {eProgression} in Cosmos DB for Customer with ID {CustomerID}", employmentProgressionId, customerId);
+                        _logger.LogTrace("Employment Progression Record found with ID {eProgression} in Cosmos DB for Customer with ID {CustomerID}", employmentProgressionId, customerId);
                         return response.Resource.FirstOrDefault();
                     }
                 }
-                _logger.LogWarning("No Employment Progression found with ID {eProgression} and Customer ID {CustomerID} in Cosmos DB",employmentProgressionId, customerId);
+                _logger.LogInformation("No Employment Progression found with ID {eProgression} and Customer ID {CustomerID} in Cosmos DB",employmentProgressionId, customerId);
                 return null;
             }
             catch (CosmosException ce)
@@ -132,11 +132,11 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                     var response = await queryep.ReadNextAsync();
                     if (response != null && response.Resource.Any())
                     {
-                        _logger.LogInformation("Employment Progression Records found in Cosmos DB for Customer with ID {CustomerID}", customerId);
+                        _logger.LogTrace("Employment Progression Records found in Cosmos DB for Customer with ID {CustomerID}", customerId);
                         return response.Resource.ToList();
                     }
                 }
-                _logger.LogWarning("No Employment Progression found with {CustomerID} in Cosmos DB", customerId);
+                _logger.LogInformation("No Employment Progression found with {CustomerID} in Cosmos DB", customerId);
                 return null;
             }
             catch (CosmosException ce)
@@ -153,7 +153,7 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                 var response = await _container.CreateItemAsync(employmentProgression, null);
                 if (response.StatusCode == HttpStatusCode.Created)
                 {
-                    _logger.LogInformation("Employment Progression Record Created in Cosmos DB for {EmploymentProgressionId}", employmentProgression.EmploymentProgressionId);
+                    _logger.LogTrace("Employment Progression Record Created in Cosmos DB for {EmploymentProgressionId}", employmentProgression.EmploymentProgressionId);
                 }
                 else
                 {
@@ -176,7 +176,7 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                 var response = await _container.ReplaceItemAsync(empProg, employmentProgressionId.ToString());
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    _logger.LogInformation("Employment Progression Record Updated in Cosmos DB for {EmploymentProgressionId}", empProg.EmploymentProgressionId);
+                    _logger.LogTrace("Employment Progression Record Updated in Cosmos DB for {EmploymentProgressionId}", empProg.EmploymentProgressionId);
                 }
                 else
                 {
@@ -204,11 +204,11 @@ namespace NCS.DSS.EmploymentProgression.Cosmos.Provider
                     if (response != null && response.Resource.Any())
                     {
                         var jsonString = JsonSerializer.Serialize(response.Resource.FirstOrDefault());
-                        _logger.LogInformation("Employment Progression Record with {EmploymentProgressionId} found in Cosmos DB for Customer with ID {CustomerID}",employmentProgressionId, customerId);
+                        _logger.LogTrace("Employment Progression Record with {EmploymentProgressionId} found in Cosmos DB for Customer with ID {CustomerID}",employmentProgressionId, customerId);
                         return jsonString;
                     }
                 }
-                _logger.LogWarning("No Employment Progression with {EmploymentProgressionId} found with {CustomerID} in Cosmos DB",employmentProgressionId, customerId);
+                _logger.LogInformation("No Employment Progression with {EmploymentProgressionId} found with {CustomerID} in Cosmos DB",employmentProgressionId, customerId);
                 return null;
             }
             catch (CosmosException ce)
