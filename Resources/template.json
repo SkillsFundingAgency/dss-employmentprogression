@@ -11,17 +11,11 @@
         "CosmosDbEndpoint": {
             "type": "string"
         },
-        "cosmosDbKey": {
-            "type": "securestring"
-        },
         "environmentName": {
             "type": "string"
         },
         "functionAppNames": {
             "type": "array"
-        },
-        "serviceBusConnectionString": {
-            "type": "securestring"
         },
         "serviceBusQueueName": {
             "type": "string"
@@ -40,9 +34,6 @@
         },
         "templateBaseUrl": {
             "type": "string"
-        },
-        "azureMapSubscriptionKey": {
-            "type": "securestring"
         },
         "workspaceName": {
             "type": "string"
@@ -72,19 +63,18 @@
                 "MSDEPLOY_RENAME_LOCKED_FILES": "1",
                 "AzureWebJobsStorage": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=SharedStorageAccountConnectionString)', parameters('keyVaultName'))]",
                 "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('appInsightsInstrumentationKey')]",
-                "CosmosDBConnectionString": "[concat('AccountEndpoint=', parameters('CosmosDbEndpoint'), '/;AccountKey=', parameters('cosmosDbKey'), ';')]",
                 "CollectionId": "[parameters('cosmosDbCollectionId')]",
                 "DatabaseId": "[parameters('cosmosDbDatabaseId')]",
                 "CustomerCollectionId": "customers",
                 "CustomerDatabaseId": "customers",
                 "LeaseCollectionName": "employmentprogression-lease",
                 "LeaseCollectionPrefix": "employmentprogressionChangeFeedPrefix",
-                "ServiceBusConnectionString": "[parameters('serviceBusConnectionString')]",
+                "ServiceBusConnectionString": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=ServiceBusConnectionString)', parameters('keyVaultName'))]",
                 "ChangeFeedQueueName": "dss.changefeedqueue",
                 "QueueName": "[parameters('serviceBusQueueName')]",
                 "AzureMapURL": "https://atlas.microsoft.com/search",
                 "AzureMapApiVersion": "1.0",
-                "AzureMapSubscriptionKey": "[parameters('azureMapSubscriptionKey')]",
+                "AzureMapSubscriptionKey": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=AzureMapsAccessKey)', parameters('keyVaultName'))]",
                 "AzureCountrySet": "GB",
                 "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]"
             },

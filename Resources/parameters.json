@@ -11,9 +11,6 @@
         "CosmosDbEndpoint": {
             "value": "__CosmosDbEndpoint__"
         },
-        "cosmosDbKey": {
-            "value": "__CosmosDbKey__"
-        },
         "environmentName": {
             "value": "__ReleaseEnvironmentName__"
         },
@@ -21,9 +18,6 @@
             "value": [
                 "__FunctionAppName__"
             ]
-        },
-        "serviceBusConnectionString": {
-            "value": "__ServiceBusConnectionString__"
         },
         "serviceBusQueueName": {
             "value": "__ServiceBusQueueName__"
@@ -42,9 +36,6 @@
         },
         "templateBaseUrl": {
             "value": "__NestedArmTemplateBaseUrl__"
-        },
-        "azureMapSubscriptionKey": {
-            "value": "__AzureMapSubscriptionKey__"
         },
         "workspaceName": {
             "value": "__sharedLogAnalyticsWorkspace__"

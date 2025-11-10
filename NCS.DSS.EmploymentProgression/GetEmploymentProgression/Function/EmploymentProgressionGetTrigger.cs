@@ -50,55 +50,55 @@ namespace NCS.DSS.EmploymentProgression
         {
             var functionName = nameof(EmploymentProgressionGetTrigger);
 
-            _logger.LogInformation("Function {FunctionName} has been invoked", functionName);
+            _logger.LogTrace("Function {FunctionName} has been invoked", functionName);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _logger.LogWarning("{CorrelationId} Unable to locate 'TouchpointId' in request header.", correlationId);
+                _logger.LogInformation("{CorrelationId} Unable to locate 'TouchpointId' in request header.", correlationId);
                 return new BadRequestObjectResult("Unable to locate 'TouchpointId' in request header.");
             }
 
             var ApimURL = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(ApimURL))
             {
-                _logger.LogWarning("{CorrelationId} Unable to locate 'apimurl' in request header", correlationId);
+                _logger.LogInformation("{CorrelationId} Unable to locate 'apimurl' in request header", correlationId);
                 return new BadRequestObjectResult("Unable to locate 'apimurl' in request header");
             }
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _logger.LogWarning("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId, customerId);
+                _logger.LogInformation("{CorrelationId} Unable to parse 'customerId' to a Guid: {customerId}", correlationId, customerId);
                 return new BadRequestObjectResult($"Unable to parse 'customerId' to a Guid: {customerId}");
             }
 
-            _logger.LogInformation("{CorrelationId} Input validation has succeeded.", correlationId);
+            _logger.LogTrace("{CorrelationId} Input validation has succeeded.", correlationId);
 
-            _logger.LogInformation("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogTrace("Attempting to see if customer exists. Customer GUID: {CustomerGuid}", customerGuid);
             var isExist = await _cosmosDbProvider.DoesCustomerResourceExist(customerGuid);
             if (!isExist)
             {
-                _logger.LogWarning("{CorrelationId} Customer {customerGuid} does not exist", correlationId, customerGuid);
+                _logger.LogInformation("{CorrelationId} Customer {customerGuid} does not exist", correlationId, customerGuid);
                 return new NotFoundObjectResult($"Customer with ID {customerId} does not exist");
             }
             else
             {
-                _logger.LogInformation("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
+                _logger.LogTrace("{CorrelationId} Customer with {CustomerId} found in Cosmos DB.",correlationId, customerGuid);
             }
 
-            _logger.LogInformation("Attempting to Get Employment Progression. Customer GUID: {CustomerGuid}", customerGuid);
+            _logger.LogTrace("Attempting to Get Employment Progression. Customer GUID: {CustomerGuid}", customerGuid);
 
             var employmentProgression = await _EmploymentProgressionsGetTriggerService.GetEmploymentProgressionsForCustomerAsync(customerGuid);
             if (employmentProgression == null)
             {
-                _logger.LogWarning("{CorrelationId} Employment Progressions for a Customer with ID {CustomerID} does not exist", correlationId, customerGuid);
-                _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
+                _logger.LogInformation("{CorrelationId} Employment Progressions for a Customer with ID {CustomerID} does not exist", correlationId, customerGuid);
+                _logger.LogTrace("Function {FunctionName} has finished invoking", functionName);
                 return new NotFoundObjectResult($"Customer with ID {customerId} has no employment progression");
             }
             else
             {
-                _logger.LogInformation("Function {FunctionName} has finished invoking", functionName);
+                _logger.LogTrace("Function {FunctionName} has finished invoking", functionName);
                 return new JsonResult(_convertToDynamic.RenameProperty(employmentProgression, "id", "EmploymentProgressionId")) { StatusCode = (int)HttpStatusCode.OK };
             }
             
