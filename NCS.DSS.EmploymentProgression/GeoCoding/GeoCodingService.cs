@@ -1,18 +1,17 @@
-﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
-using DFC.GeoCoding.Standard.AzureMaps.Service;
+﻿using DFC.GeoCoding.Standard.OrdnanceSurvey.Models;
+using DFC.GeoCoding.Standard.OrdnanceSurvey.Services;
 using Microsoft.Extensions.Logging;
 
-namespace NCS.DSS.EmployeeProgression.GeoCoding
+namespace NCS.DSS.EmploymentProgression.GeoCoding
 {
     public class GeoCodingService : IGeoCodingService
     {
-        private readonly IAzureMapService _azureMapService;
-
+        private readonly IOSService _OSService;
         private readonly ILogger<GeoCodingService> _logger;
 
-        public GeoCodingService(IAzureMapService azureMapService, ILogger<GeoCodingService> logger)
+        public GeoCodingService(IOSService OSService, ILogger<GeoCodingService> logger)
         {
-            _azureMapService = azureMapService;
+            _OSService = OSService;
             _logger = logger;
         }
 
@@ -24,10 +23,10 @@ namespace NCS.DSS.EmployeeProgression.GeoCoding
             try
             {
                 _logger.LogTrace("Attempting to Get Position of Postcode {PostCode}", postcode);
-                var position = await _azureMapService.GetPositionForAddress(postcode);
+                var position = await _OSService.GetPositionForPostcodeAsync(postcode);
                 if(position != null)
                 {
-                    _logger.LogTrace("Successfully Retrieved Position {Long}/{Lat} of Postcode {PostCode}",position.Lon,position.Lat, postcode);
+                    _logger.LogTrace("Successfully Retrieved Position {Long}/{Lat} of Postcode {PostCode}",position.Longitude, position.Latitude, postcode);
                     return position;
                 }
                 _logger.LogInformation("Failed to Retrieve Position of Postcode {PostCode}", postcode);

@@ -9,13 +9,11 @@
         public string BaseAddress { get; set; }
         public string QueueName { get; set; }
         public string ServiceBusConnectionString { get; set; }
-        public string AzureMapURL { get; set; }
-        public string AzureMapApiVersion { get; set; }
-        public string AzureMapSubscriptionKey { get; set; }
-        public string AzureCountrySet { get; set; }
         public string DatabaseId { get; set; }
         public string CollectionId { get; set; }
         public string CustomerDatabaseId { get; set; }
         public string CustomerCollectionId { get; set; }
+        public string OSServiceApiUrl { get; set; }
+        public string OSServiceApiKey { get; set; }
     }
 }
