@@ -1,6 +1,5 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
-using DFC.GeoCoding.Standard.AzureMaps.Service;
 using DFC.GeoCoding.Standard.OrdnanceSurvey.Models;
 using DFC.GeoCoding.Standard.OrdnanceSurvey.Services;
 using DFC.HTTP.Standard;
@@ -99,7 +98,6 @@ namespace NCS.DSS.EmploymentProgression
                     services.AddTransient<IValidate, Validate>();
                     services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
                     services.AddScoped<IGeoCodingService, GeoCodingService>();
-                    services.AddScoped<IAzureMapService, AzureMapService>();
 
                     services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
                     services.AddSingleton<IJsonHelper, JsonHelper>();
