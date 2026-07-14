@@ -1,4 +1,4 @@
-﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+﻿using DFC.GeoCoding.Standard.OrdnanceSurvey.Models;
 using NCS.DSS.EmploymentProgression.Models;
 
 namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service

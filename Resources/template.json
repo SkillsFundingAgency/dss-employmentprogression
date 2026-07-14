@@ -72,11 +72,9 @@
                 "ServiceBusConnectionString": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=ServiceBusConnectionString)', parameters('keyVaultName'))]",
                 "ChangeFeedQueueName": "dss.changefeedqueue",
                 "QueueName": "[parameters('serviceBusQueueName')]",
-                "AzureMapURL": "https://atlas.microsoft.com/search",
-                "AzureMapApiVersion": "1.0",
-                "AzureMapSubscriptionKey": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=AzureMapsAccessKey)', parameters('keyVaultName'))]",
-                "AzureCountrySet": "GB",
-                "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]"
+                "CosmosDbEndpoint": "[parameters('CosmosDbEndpoint')]",
+				"OSServiceApiUrl": "https://api.os.uk/search/places/v1/postcode?postcode={0}&dataset=DPA&output_srs=WGS84",
+				"OSServiceApiKey": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=GetPostCodeApiKey)', parameters('keyVaultName'))]"
             },
             "copy": {
                 "name": "FunctionAppSettingsCopy",
