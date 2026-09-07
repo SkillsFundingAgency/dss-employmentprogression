@@ -1,4 +1,4 @@
-﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+﻿using DFC.GeoCoding.Standard.OrdnanceSurvey.Models;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Models;
 using NCS.DSS.EmploymentProgression.ServiceBus;
@@ -73,8 +73,8 @@ namespace NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service
                 return;
             }
 
-            employmentProgressionPatchRequest.Longitude = (decimal)position.Lon;
-            employmentProgressionPatchRequest.Latitude = (decimal)position.Lat;
+            employmentProgressionPatchRequest.Longitude = (decimal)position.Longitude;
+            employmentProgressionPatchRequest.Latitude = (decimal)position.Latitude;
         }
     }
 }

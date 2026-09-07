@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.EmployeeProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
 using NCS.DSS.EmploymentProgression.Function;
 using NCS.DSS.EmploymentProgression.Models;
@@ -16,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using NCS.DSS.EmploymentProgression.GeoCoding;
 
 namespace NCS.DSS.EmploymentProgression.Tests.FunctionTests
 {

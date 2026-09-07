@@ -1,6 +1,6 @@
-﻿using DFC.GeoCoding.Standard.AzureMaps.Model;
+﻿using DFC.GeoCoding.Standard.OrdnanceSurvey.Models;
 
-namespace NCS.DSS.EmployeeProgression.GeoCoding
+namespace NCS.DSS.EmploymentProgression.GeoCoding
 {
     public interface IGeoCodingService
     {

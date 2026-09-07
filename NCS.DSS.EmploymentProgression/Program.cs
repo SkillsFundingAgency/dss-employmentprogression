@@ -1,17 +1,19 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
-using DFC.GeoCoding.Standard.AzureMaps.Service;
+using DFC.GeoCoding.Standard.OrdnanceSurvey.Models;
+using DFC.GeoCoding.Standard.OrdnanceSurvey.Services;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Azure.Functions.Worker;
-using NCS.DSS.EmployeeProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression.Cosmos.Provider;
+using NCS.DSS.EmploymentProgression.GeoCoding;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.GetEmploymentProgressionById.Service;
 using NCS.DSS.EmploymentProgression.Models;
@@ -19,7 +21,7 @@ using NCS.DSS.EmploymentProgression.PatchEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.PostEmploymentProgression.Service;
 using NCS.DSS.EmploymentProgression.ServiceBus;
 using NCS.DSS.EmploymentProgression.Validators;
-using Microsoft.Extensions.Configuration;
+
 namespace NCS.DSS.EmploymentProgression
 {
     internal class Program
@@ -40,6 +42,14 @@ namespace NCS.DSS.EmploymentProgression
                     var configuration = context.Configuration;
                     services.AddOptions<EmploymentProgressionConfigurationSettings>()
                         .Bind(configuration);
+                    services.Configure<OSServiceOptions>(options =>
+                    {
+                        var settings = configuration.Get<EmploymentProgressionConfigurationSettings>();
+                        options.ApiUrl = settings.OSServiceApiUrl;
+                        options.ApiKey = settings.OSServiceApiKey;
+                    });
+
+                    services.AddHttpClient<IOSService, OSService>();
                     services.AddLogging();
                     services.AddApplicationInsightsTelemetryWorkerService();
                     services.ConfigureFunctionsApplicationInsights();
@@ -88,7 +98,6 @@ namespace NCS.DSS.EmploymentProgression
                     services.AddTransient<IValidate, Validate>();
                     services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
                     services.AddScoped<IGeoCodingService, GeoCodingService>();
-                    services.AddScoped<IAzureMapService, AzureMapService>();
 
                     services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
                     services.AddSingleton<IJsonHelper, JsonHelper>();

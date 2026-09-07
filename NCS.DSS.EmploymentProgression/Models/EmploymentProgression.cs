@@ -61,13 +61,13 @@ namespace NCS.DSS.EmploymentProgression.Models
         [Example(Description = "AA11AA")]
         public string EmployerPostcode { get; set; }
 
-        [RegularExpression(@"^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$")]
+        [RegularExpression(@"^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,8})?))$")]
         [Display(Description = "Geocoded address information")]
         [Example(Description = "52.40100")]
         [JsonIgnoreOnSerialize]
         public decimal? Latitude { get; set; }
 
-        [RegularExpression(@"^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$")]
+        [RegularExpression(@"^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,8})?))$")]
         [Display(Description = "Geocoded address information")]
         [Example(Description = "-1.50812")]
         [JsonIgnoreOnSerialize]
